@@ -2,33 +2,33 @@
 <div class="bg-dark text-white py-2 small">
     <div class="container d-flex justify-content-between">
         <div>
-            @if($settings->phone)
+            @if($settings?->phone)
                 <span class="me-3">
-                    <i class="fas fa-phone"></i> {{ $settings->phone }}
+                    <i class="fas fa-phone"></i> {{ $settings?->phone ?? 'Telefon Yok' }}
                 </span>
             @endif
 
-            @if($settings->email)
+            @if($settings?->email)
                 <span>
-                    <i class="fas fa-envelope"></i> {{ $settings->email }}
+                    <i class="fas fa-envelope"></i> {{ $settings?->email }}
                 </span>
             @endif
         </div>
 
         <div>
-            @if($settings->facebook)
+            @if($settings?->facebook)
                 <a href="{{ $settings->facebook }}" class="text-white me-2">
                     <i class="fab fa-facebook-f"></i>
                 </a>
             @endif
 
-            @if($settings->instagram)
+            @if($settings?->instagram)
                 <a href="{{ $settings->instagram }}" class="text-white me-2">
                     <i class="fab fa-instagram"></i>
                 </a>
             @endif
 
-            @if($settings->twitter)
+            @if($settings?->twitter)
                 <a href="{{ $settings->twitter }}" class="text-white">
                     <i class="fab fa-twitter"></i>
                 </a>

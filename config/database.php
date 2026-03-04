@@ -42,6 +42,13 @@ return [
             'synchronous' => null,
             'transaction_mode' => 'DEFERRED',
         ],
+		
+		'tenant' => [
+        'driver' => 'sqlite',
+        'database' => database_path('tenant_temp.sqlite'),
+        'prefix' => '',
+        'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+    ],
 
         'mysql' => [
             'driver' => 'mysql',

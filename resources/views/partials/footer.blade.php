@@ -32,34 +32,34 @@
             <div class="col-lg-3 col-md-6">
                 <h6 class="fw-bold mb-3">İletişim</h6>
 
-                @if($settings->phone)
+                @if($settings?->phone)
                     <p class="small text-secondary mb-2">
                         <i class="fas fa-phone me-2"></i>
-                        {{ $settings->phone }}
+                        {{ $settings?->phone ?? 'Telefon Yok'}}
                     </p>
                 @endif
 
-                @if($settings->email)
+                @if($settings?->email)
                     <p class="small text-secondary mb-2">
                         <i class="fas fa-envelope me-2"></i>
-                        {{ $settings->email }}
+                        {{ $settings?->email }}
                     </p>
                 @endif
 
                 <div class="mt-3">
-                    @if($settings->facebook)
+                    @if($settings?->facebook)
                         <a href="{{ $settings->facebook }}" class="text-white me-3 social-icon">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                     @endif
 
-                    @if($settings->instagram)
+                    @if($settings?->instagram)
                         <a href="{{ $settings->instagram }}" class="text-white me-3 social-icon">
                             <i class="fab fa-instagram"></i>
                         </a>
                     @endif
 
-                    @if($settings->twitter)
+                    @if($settings?->twitter)
                         <a href="{{ $settings->twitter }}" class="text-white social-icon">
                             <i class="fab fa-twitter"></i>
                         </a>

@@ -24,24 +24,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Proje terminal üzerinden (migrate vs.) çalışmıyorsa devreye gir
-        if (!app()->runningInConsole()) {
+       // Sadece bir müşteri (tenant) veritabanı bağlandığında çalış
+    if (fn() => isset(tenant()->id)) {
+        
+        // Verileri sadece frontend (site tarafı) isteklerinde paylaş, 
+        // admin panelini yormayalım
+        if (!app()->runningInConsole() && !request()->is('admin*')) {
             try {
-                // Sadece tablolar varsa veriyi çek
-                if (Schema::hasTable('sliders')) {
-                    View::share('sliders', Slider::where('is_active', true)->orderBy('order', 'asc')->get());
-                }
-
                 if (Schema::hasTable('settings')) {
-                    View::share('settings', Setting::first());
+                    View::share('settings', \App\Models\Setting::first());
                 }
-
                 if (Schema::hasTable('menus')) {
-                    View::share('menus', Menu::where('is_active', true)->orderBy('order')->get());
+                    View::share('menus', \App\Models\Menu::where('is_active', true)->orderBy('order')->get());
                 }
+                // Slider vb. diğerlerini de buraya ekleyebilirsin
             } catch (\Exception $e) {
-                // Veritabanı veya tablo henüz hazır değilse hata vermemesi için boş bırakıyoruz
+                // Hata durumunda sessiz kal
             }
         }
+    }
     }
 }
