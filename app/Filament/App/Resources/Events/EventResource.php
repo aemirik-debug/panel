@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Events;
 
 use App\Filament\App\Resources\Events\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Event;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -25,6 +26,9 @@ use Filament\Actions\DeleteBulkAction;
 
 class EventResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'events';
     protected static ?string $model = Event::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;

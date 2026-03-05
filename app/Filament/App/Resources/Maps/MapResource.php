@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Maps; 
 
 use App\Filament\App\Resources\Maps\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Map;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,6 +23,9 @@ use Filament\Actions\DeleteBulkAction;
 
 class MapResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'maps';
     protected static ?string $model = Map::class;
 
     // Menü için şık bir harita/konum ikonu

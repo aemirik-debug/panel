@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Quizzes;
 
 use App\Filament\App\Resources\Quizzes\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Quiz;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -24,6 +25,10 @@ use Filament\Actions\DeleteBulkAction;
 
 class QuizResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'quizzes';
+    
     protected static ?string $model = Quiz::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQuestionMarkCircle;

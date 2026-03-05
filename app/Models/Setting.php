@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Setting extends Model
 {
+    use BelongsToTenant;
     // Formdan gelecek tüm alanları buraya yazıyoruz
     protected $fillable = [
         'site_name',

@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Post;
 
 use App\Filament\App\Resources\Post\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Post;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -24,6 +25,9 @@ use Illuminate\Support\Str;
 
 class PostResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'posts';
     protected static ?string $model = Post::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;

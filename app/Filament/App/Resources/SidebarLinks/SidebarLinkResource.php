@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\SidebarLinks;
 
 use App\Filament\App\Resources\SidebarLinks\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\SidebarLink;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,9 @@ use Filament\Actions\DeleteBulkAction; // Direkt buradan çağırıyoruz
 
 class SidebarLinkResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'sidebar_links';
     protected static ?string $model = SidebarLink::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;

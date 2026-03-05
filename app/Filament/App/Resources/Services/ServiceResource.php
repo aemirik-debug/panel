@@ -7,6 +7,7 @@ use App\Filament\App\Resources\Services\Pages\EditService;
 use App\Filament\App\Resources\Services\Pages\ListServices;
 use App\Filament\App\Resources\Services\Schemas\ServiceForm;
 use App\Filament\App\Resources\Services\Tables\ServicesTable;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Service;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,9 @@ use Filament\Tables\Table;
 
 class ServiceResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'services';
     protected static ?string $model = Service::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static ?string $recordTitleAttribute = 'title';

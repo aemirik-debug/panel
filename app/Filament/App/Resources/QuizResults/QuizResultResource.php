@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\QuizResults;
 
 use App\Filament\App\Resources\QuizResults\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\QuizResult;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,9 @@ use Filament\Actions\DeleteBulkAction;
 
 class QuizResultResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'quiz_results';
     protected static ?string $model = QuizResult::class;
 
     // Karneleri temsil etmesi için şık bir sonuç/belge ikonu

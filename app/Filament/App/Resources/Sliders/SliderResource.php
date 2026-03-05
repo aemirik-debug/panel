@@ -7,6 +7,7 @@ use App\Filament\App\Resources\Sliders\Pages\EditSlider;
 use App\Filament\App\Resources\Sliders\Pages\ListSliders;
 use App\Filament\App\Resources\Sliders\Schemas\SliderForm;
 use App\Filament\App\Resources\Sliders\Tables\SlidersTable;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Slider;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,9 @@ use Filament\Tables\Table;
 
 class SliderResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'sliders';
     protected static ?string $model = Slider::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

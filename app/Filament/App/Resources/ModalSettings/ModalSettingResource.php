@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\ModalSettings;
 
 use App\Filament\App\Resources\ModalSettings\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\ModalSetting;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,9 @@ use Filament\Support\Icons\Heroicon;
 
 class ModalSettingResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'modal_settings';
     protected static ?string $model = ModalSetting::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBell;

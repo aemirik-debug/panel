@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Settings;
 
 use App\Filament\App\Resources\Settings\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Setting;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,6 +17,9 @@ use Filament\Forms\Components\ColorPicker;
 
 class SettingResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'settings';
     // BU FONKSİYONU EKLE, ESKİ SATIRI SİL
     public static function getNavigationGroup(): ?string
     {

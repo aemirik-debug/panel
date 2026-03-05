@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Galleries;
 
 use App\Filament\App\Resources\Galleries\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Gallery;
 use App\Models\Menu;
 use BackedEnum;
@@ -24,6 +25,10 @@ use Filament\Actions\DeleteBulkAction;
 
 class GalleryResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'galleries';
+    
     protected static ?string $model = Gallery::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;

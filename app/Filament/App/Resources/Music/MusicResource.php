@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Music; 
 
 use App\Filament\App\Resources\Music\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Music;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,6 +23,9 @@ use Filament\Actions\DeleteBulkAction;
 
 class MusicResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'music';
     protected static ?string $model = Music::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMusicalNote;

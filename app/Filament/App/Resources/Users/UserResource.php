@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Users; // Klasörüne uygun namespace
 
 use App\Filament\App\Resources\Users\Pages; // Klasörüne uygun namespace
+use App\Filament\Traits\HasPackageModule;
 use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'users';
     protected static ?string $model = User::class;
 
     // HATAYI ÇÖZEN KISIM: Tip tanımını tam olarak Filament'in istediği formata getirdik

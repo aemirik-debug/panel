@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\Menus;
 use App\Filament\App\Resources\Menus\Pages\CreateMenu;
 use App\Filament\App\Resources\Menus\Pages\EditMenu;
 use App\Filament\App\Resources\Menus\Pages\ListMenus;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Menu;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -24,6 +25,10 @@ use Filament\Actions\DeleteBulkAction;
 
 class MenuResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'menus';
+    
     protected static ?string $model = Menu::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;

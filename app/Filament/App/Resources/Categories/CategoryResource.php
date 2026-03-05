@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\Categories;
 use App\Filament\App\Resources\Categories\Pages\CreateCategory;
 use App\Filament\App\Resources\Categories\Pages\EditCategory;
 use App\Filament\App\Resources\Categories\Pages\ListCategories;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Category;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,6 +23,9 @@ use Filament\Actions\DeleteBulkAction;
 
 class CategoryResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'categories';
     protected static ?string $model = Category::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

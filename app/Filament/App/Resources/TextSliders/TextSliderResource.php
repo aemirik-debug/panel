@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\TextSliders;
 
 use App\Filament\App\Resources\TextSliders\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\TextSlider;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,6 +23,9 @@ use Filament\Actions\DeleteBulkAction;
 
 class TextSliderResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'text_sliders';
     protected static ?string $model = TextSlider::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;

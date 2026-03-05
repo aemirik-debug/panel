@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Contacts;
 
 use App\Filament\App\Resources\Contacts\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Contact;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,6 +23,9 @@ use Illuminate\Support\HtmlString;
 
 class ContactResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'contacts';
     protected static ?string $model = Contact::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;

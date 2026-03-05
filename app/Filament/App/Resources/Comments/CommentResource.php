@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Comments;
 
 use App\Filament\App\Resources\Comments\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Comment;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,9 @@ use Filament\Actions\DeleteAction;
 
 class CommentResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'comments';
     protected static ?string $model = Comment::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
