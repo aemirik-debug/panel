@@ -24,6 +24,7 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+       $services = \App\Models\Service::where('is_active', 1)->get();
+        return view('welcome', compact('services'));
     });
 });
