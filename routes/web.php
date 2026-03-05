@@ -10,8 +10,17 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // 1. ANA SAYFA
 Route::get('/', function () {
-   return;
+    $services = \App\Models\Service::where('is_active', true)
+        ->orderBy('order', 'asc')
+        ->get();
     
+    $sliders = \App\Models\Slider::where('is_active', true)
+        ->orderBy('order', 'asc')
+        ->get();
+    
+    $settings = \App\Models\Setting::first();
+    
+    return view('welcome', compact('services', 'sliders', 'settings'));
 });
 
 // 2. HİZMET DETAY (Sıralama önemli, detay rotası altta kalsın)

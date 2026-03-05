@@ -106,7 +106,10 @@ class TenancyServiceProvider extends ServiceProvider
     $this->mapRoutes();
     $this->makeTenancyMiddlewareHighestPriority();
 
-    // --- OTOMATİK KURULUM BAŞLIYOR ---
+   \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::$onFail = function ($exception, $request, $next) {
+        return $next($request);
+    };
+    
     // Yeni bir müşteri (Tenant) oluşturulduktan hemen sonra çalışır
     \Illuminate\Support\Facades\Event::listen(
         \Stancl\Tenancy\Events\TenantCreated::class,
