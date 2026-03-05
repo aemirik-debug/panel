@@ -15,6 +15,8 @@ use Filament\Forms\Components\TextInput; // Form komponentleri hala Forms namesp
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Components\Section; // V4'te Schemas namespace'inde
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\CheckboxList;
 use BackedEnum;
 
 class TenantResource extends Resource
@@ -36,11 +38,35 @@ class TenantResource extends Resource
                     ->schema([
                         TextInput::make('id')
                             ->label('Müşteri Kodu (Küçük harf, boşluksuz)')
+                            ->disabled(fn ($record) => $record !== null) // Düzenlerken ID değişmesin
                             ->placeholder('musteri2')
                             ->required()
                             ->unique(ignoreRecord: true),
                     ]),
 
+                    Section::make('Yapılandırma (Modüller & Tema)')
+                ->schema([
+                    Select::make('theme')
+                        ->label('Web Sitesi Teması')
+                        ->options([
+                            'theme_1' => 'Modern Kurumsal',
+                            'theme_2' => 'Minimalist Ajans',
+                            'theme_3' => 'Kreatif Portfolyo',
+                        ])
+                        ->default('theme_1')
+                        ->required(),
+
+                    CheckboxList::make('modules')
+                        ->label('Aktif Modüller')
+                        ->options([
+                            'blog' => 'Blog Yazıları',
+                            'services' => 'Hizmetler Modülü',
+                            'portfolio' => 'Portfolyo / Galeri',
+                            'team' => 'Ekibimiz',
+                        ])
+                        ->columns(2),
+                ]),
+                
                 Section::make('Domain Tanımlama')
                     ->schema([
                         Repeater::make('domains')

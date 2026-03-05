@@ -12,6 +12,9 @@ use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
 use Stancl\Tenancy\Middleware;
+use Stancl\Tenancy\Events\TenantCreated;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -98,12 +101,30 @@ class TenancyServiceProvider extends ServiceProvider
     }
 
     public function boot()
-    {
-        $this->bootEvents();
-        $this->mapRoutes();
+{
+    $this->bootEvents();
+    $this->mapRoutes();
+    $this->makeTenancyMiddlewareHighestPriority();
 
-        $this->makeTenancyMiddlewareHighestPriority();
-    }
+    // --- OTOMATİK KURULUM BAŞLIYOR ---
+    // Yeni bir müşteri (Tenant) oluşturulduktan hemen sonra çalışır
+    \Illuminate\Support\Facades\Event::listen(
+        \Stancl\Tenancy\Events\TenantCreated::class,
+        function (\Stancl\Tenancy\Events\TenantCreated $event) {
+            $event->tenant->run(function ($tenant) {
+                // 1. Otomatik olarak müşteri panel giriş bilgilerini oluştur
+                \App\Models\User::create([
+                    'name'     => 'Müşteri Yöneticisi',
+                    'email'    => 'admin@' . $tenant->id . '.com', // Örn: admin@musteri1.com
+                    'password' => \Illuminate\Support\Facades\Hash::make('12345678'),
+                ]);
+
+                // 2. İleride buraya 'Varsayılan Slider', 'Varsayılan Kategoriler' 
+                // ekleme komutlarını da yazacağız.
+            });
+        }
+    );
+}
 
     protected function bootEvents()
     {
