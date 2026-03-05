@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Setting;
 use App\Models\Menu;
-use App\Models\Slider;
+use App\Models\Setting;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
@@ -24,24 +23,51 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       // Sadece bir müşteri (tenant) veritabanı bağlandığında çalış
-    if (fn() => isset(tenant()->id)) {
-        
-        // Verileri sadece frontend (site tarafı) isteklerinde paylaş, 
-        // admin panelini yormayalım
-        if (!app()->runningInConsole() && !request()->is('admin*')) {
+        // Frontend tema görünümlerine ortak verileri tek noktadan enjekte et.
+        View::composer('themes.*', function ($view) {
             try {
+                $settings = null;
+                $menus = collect();
+
                 if (Schema::hasTable('settings')) {
-                    View::share('settings', \App\Models\Setting::first());
+                    $settings = Setting::first();
                 }
+
                 if (Schema::hasTable('menus')) {
-                    View::share('menus', \App\Models\Menu::where('is_active', true)->orderBy('order')->get());
+                    $query = Menu::query()
+                        ->where('is_active', true)
+                        ->orderBy('order');
+
+                    if (Schema::hasColumn('menus', 'parent_id')) {
+                        $menus = $query
+                            ->whereNull('parent_id')
+                            ->with([
+                                'page',
+                                'children' => fn ($childQuery) => $childQuery
+                                    ->where('is_active', true)
+                                    ->orderBy('order')
+                                    ->with('page'),
+                            ])
+                            ->get();
+                    } else {
+                        $menus = $query
+                            ->with('page')
+                            ->get()
+                            ->map(function (Menu $menu) {
+                                $menu->setRelation('children', collect());
+
+                                return $menu;
+                            });
+                    }
                 }
-                // Slider vb. diğerlerini de buraya ekleyebilirsin
-            } catch (\Exception $e) {
-                // Hata durumunda sessiz kal
+
+                $view->with('settings', $settings);
+                $view->with('menus', $menus);
+            } catch (\Throwable $e) {
+                // Tema render ederken migration öncesi hatalarda sayfayı kırma.
+                $view->with('settings', null);
+                $view->with('menus', collect());
             }
-        }
-    }
+        });
     }
 }

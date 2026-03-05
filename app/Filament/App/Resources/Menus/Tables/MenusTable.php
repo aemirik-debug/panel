@@ -5,6 +5,11 @@ namespace App\Filament\App\Resources\Menus\Tables;
 use App\Models\Menu;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 class MenusTable
 {
@@ -28,6 +33,11 @@ class MenusTable
                     ->searchable()
                     ->limit(40)
                     ->tooltip(fn(Menu $record): string => $record->url),
+
+                Tables\Columns\TextColumn::make('page.title')
+                    ->label('📄 Bağlantılı Sayfa')
+                    ->placeholder('—')
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('parent.title')
                     ->label('👨‍👧 Üst Menü')
@@ -61,14 +71,14 @@ class MenusTable
                     ),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\View::make('view')
+                EditAction::make(),
+                ViewAction::make('view')
                     ->label('Görüntüle'),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                DeleteBulkAction::make(),
                 ]),
             ]);
     }

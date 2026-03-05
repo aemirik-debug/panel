@@ -38,6 +38,7 @@ protected $casts = [
                 'sliders',       // Slider
                 'settings',      // Site Ayarları
                 'menus',         // Menü Yönetimi
+                'pages',         // Özel Sayfalar
             ],
             'profesyonel' => [
                 'services',
@@ -46,6 +47,7 @@ protected $casts = [
                 'sliders',
                 'settings',
                 'menus',
+                'pages',
                 'posts',         // Blog/İçerik
                 'categories',    // Kategoriler
                 'comments',      // Yorumlar
@@ -58,6 +60,7 @@ protected $casts = [
                 'sliders',
                 'settings',
                 'menus',
+                'pages',
                 'posts',
                 'categories',
                 'comments',

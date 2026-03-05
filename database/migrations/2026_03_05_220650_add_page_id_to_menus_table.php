@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('categories', function (Blueprint $table) {
-            $table->foreignId('tenant_id')->nullable()->constrained('tenants')->onDelete('cascade');
+        Schema::table('menus', function (Blueprint $table) {
+            $table->foreignId('page_id')->nullable()->constrained('pages')->onDelete('set null');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('categories', function (Blueprint $table) {
-            $table->dropForeignIdFor(\App\Models\Tenant::class);
+        Schema::table('menus', function (Blueprint $table) {
+            $table->dropForeignIdFor('pages');
         });
     }
 };

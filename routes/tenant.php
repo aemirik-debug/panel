@@ -166,17 +166,7 @@ Route::middleware([
         
         return back()->with('success', 'Mesajınız başarıyla gönderildi!');
     })->name('contact.store');
-    
-    // HAKKIMIZDA
-    Route::get('/hakkimizda', function () {
-        $tenant = tenant();
-        $theme = $tenant->theme ?? 'theme_1';
-        
-        $settings = \App\Models\Setting::first();
-        
-        return view("themes.{$theme}.pages.about", compact('settings'));
-    })->name('about');
-    
+
     // REFERANSLAR
     Route::get('/referanslar', function () {
         $tenant = tenant();
@@ -194,4 +184,22 @@ Route::middleware([
         
         return view("themes.{$theme}.pages.references", compact('clients', 'testimonials', 'settings'));
     })->name('references.index');
+
+    // ÖZEL SAYFALAR (Menüden bağlanan içerik sayfaları)
+    Route::get('/{slug}', function (string $slug) {
+        $tenant = tenant();
+        $theme = $tenant->theme ?? 'theme_1';
+
+        if (!\Illuminate\Support\Facades\Schema::hasTable('pages')) {
+            abort(404);
+        }
+
+        $page = \App\Models\Page::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $settings = \App\Models\Setting::first();
+
+        return view("themes.{$theme}.pages.custom-page", compact('page', 'settings'));
+    })->where('slug', '^(?!admin|panel|storage).*$')->name('pages.show');
 });

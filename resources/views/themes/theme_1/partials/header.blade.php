@@ -38,14 +38,87 @@
       </a>
 
       <nav id="navmenu" class="navmenu">
+        @php
+          $resolveMenuUrl = function ($menu) {
+              // Eğer menüye bağlı bir sayfa varsa, sayfa slug'ını kullan
+              if ($menu->page && $menu->page->slug) {
+                  return url('/' . ltrim($menu->page->slug, '/'));
+              }
+
+              $rawUrl = $menu->url;
+              if (blank($rawUrl)) {
+                  return '#';
+              }
+
+              if (str_starts_with($rawUrl, 'http://') || str_starts_with($rawUrl, 'https://')) {
+                  return $rawUrl;
+              }
+
+              return url($rawUrl);
+          };
+        @endphp
+
         <ul>
-          <li><a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Ana Sayfa</a></li>
-          <li><a href="{{ url('/hakkimizda') }}" class="{{ Request::is('hakkimizda') ? 'active' : '' }}">Hakkımızda</a></li>
-          <li><a href="{{ url('/hizmetler') }}" class="{{ Request::is('hizmetler*') ? 'active' : '' }}">Hizmetler</a></li>
-          <li><a href="{{ url('/referanslar') }}" class="{{ Request::is('referanslar') ? 'active' : '' }}">Referanslar</a></li>
-          <li><a href="{{ url('/portfolyo') }}" class="{{ Request::is('portfolyo*') ? 'active' : '' }}">Portfolyo</a></li>
-          <li><a href="{{ url('/blog') }}" class="{{ Request::is('blog*') ? 'active' : '' }}">Blog</a></li>
-          <li><a href="{{ url('/iletisim') }}" class="{{ Request::is('iletisim') ? 'active' : '' }}">İletişim</a></li>
+          @if(isset($menus) && $menus->count())
+            @foreach($menus as $menu)
+              @php
+                $menuUrl = $resolveMenuUrl($menu);
+                // URL'den path'i al (slug varsa slugu kullan, yoksa URL'den)
+                $menuPath = $menu->page && $menu->page->slug ? ltrim($menu->page->slug, '/') : ltrim((string) $menu->url, '/');
+                $isExternal = str_starts_with((string) $menu->url, 'http://') || str_starts_with((string) $menu->url, 'https://');
+                $isActive = !$isExternal && (($menuPath === '' && request()->is('/')) || ($menuPath !== '' && request()->is($menuPath . '*')));
+              @endphp
+
+              @if($menu->children->count())
+                <li class="dropdown">
+                  <a href="{{ $menuUrl }}" class="{{ $isActive ? 'active' : '' }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif>
+                    <span>
+                      @if(!empty($menu->icon))
+                        <i class="bi bi-{{ $menu->icon }} me-1"></i>
+                      @endif
+                      {{ $menu->title }}
+                    </span>
+                    <i class="bi bi-chevron-down toggle-dropdown"></i>
+                  </a>
+                  <ul>
+                    @foreach($menu->children as $child)
+                      @php
+                        $childUrl = $resolveMenuUrl($child);
+                        $childPath = $child->page && $child->page->slug ? ltrim($child->page->slug, '/') : ltrim((string) $child->url, '/');
+                        $childExternal = str_starts_with((string) $child->url, 'http://') || str_starts_with((string) $child->url, 'https://');
+                        $childActive = !$childExternal && (($childPath === '' && request()->is('/')) || ($childPath !== '' && request()->is($childPath . '*')));
+                      @endphp
+                      <li>
+                        <a href="{{ $childUrl }}" class="{{ $childActive ? 'active' : '' }}" @if($childExternal) target="_blank" rel="noopener noreferrer" @endif>
+                          @if(!empty($child->icon))
+                            <i class="bi bi-{{ $child->icon }} me-1"></i>
+                          @endif
+                          {{ $child->title }}
+                        </a>
+                      </li>
+                    @endforeach
+                  </ul>
+                </li>
+              @else
+                <li>
+                  <a href="{{ $menuUrl }}" class="{{ $isActive ? 'active' : '' }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif>
+                    @if(!empty($menu->icon))
+                      <i class="bi bi-{{ $menu->icon }} me-1"></i>
+                    @endif
+                    {{ $menu->title }}
+                  </a>
+                </li>
+              @endif
+            @endforeach
+          @else
+            <li><a href="{{ url('/') }}" class="{{ request()->is('/') ? 'active' : '' }}">Ana Sayfa</a></li>
+            <li><a href="{{ url('/hakkimizda') }}" class="{{ request()->is('hakkimizda') ? 'active' : '' }}">Hakkımızda</a></li>
+            <li><a href="{{ url('/hizmetler') }}" class="{{ request()->is('hizmetler*') ? 'active' : '' }}">Hizmetler</a></li>
+            <li><a href="{{ url('/referanslar') }}" class="{{ request()->is('referanslar') ? 'active' : '' }}">Referanslar</a></li>
+            <li><a href="{{ url('/portfolyo') }}" class="{{ request()->is('portfolyo*') ? 'active' : '' }}">Portfolyo</a></li>
+            <li><a href="{{ url('/blog') }}" class="{{ request()->is('blog*') ? 'active' : '' }}">Blog</a></li>
+            <li><a href="{{ url('/iletisim') }}" class="{{ request()->is('iletisim') ? 'active' : '' }}">İletişim</a></li>
+          @endif
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>

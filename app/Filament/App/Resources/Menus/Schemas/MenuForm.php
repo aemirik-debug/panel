@@ -3,9 +3,10 @@
 namespace App\Filament\App\Resources\Menus\Schemas;
 
 use App\Models\Menu;
+use App\Models\Page;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Alert;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
@@ -19,19 +20,8 @@ class MenuForm
         return $schema
             ->components([
                 Section::make('📋 Menü Yapısı')
-                    ->description('Menünüzün temel bilgilerini burada ayarlayın.')
+                    ->description('Menünüzün temel bilgilerini burada ayarlayın. Menü sistemi hiyerarşik olarak çalışır: Ana Menü (seçim yapmazsa), Alt Menü (bir menü seçerseniz), Sıralama (aynı seviye menüleri sıralamak için).')
                     ->schema([
-                        Alert::make('menu_structure_info')
-                            ->title('💡 Menü Yapısı Hakkında')
-                            ->description('
-                                Menü sistemi hiyerarşik olarak çalışır:
-                                • **Ana Menü**: Bir menüyü seçmezseniz, ana menü olur
-                                • **Alt Menü**: Bir menü seçerseniz, o menünün altında yer alır
-                                • **Sıralama**: Aynı seviye menüleri bu sayı ile sıralarsınız (küçükten büyüğe)
-                            ')
-                            ->icon('heroicon-o-information-circle')
-                            ->visible(fn() => true),
-
                         Select::make('parent_id')
                             ->label('📌 Üst Menü Seçiniz')
                             ->options(
@@ -40,17 +30,18 @@ class MenuForm
                                     ->pluck('title', 'id')
                             )
                             ->searchable()
-                            ->clearable()
+                            ->nullable()
                             ->placeholder('— Ana Menü —')
                             ->helperText('Eğer bu menüyü başka bir menünün altında göstermek istiyorsanız, o menüyü seçin.'),
 
                         TextInput::make('title')
                             ->label('📝 Menü Başlığı')
                             ->placeholder('Örn: Hakkımızda, Hizmetler, İletişim')
+                            ->default(fn () => Menu::query()->exists() ? null : 'ANASAYFA')
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function (\Filament\Forms\Set $set, ?string $state) {
+                            ->afterStateUpdated(function (Set $set, ?string $state) {
                                 if ($state) {
                                     $set('slug', Str::slug($state));
                                     $set('meta_title', $state);
@@ -61,34 +52,34 @@ class MenuForm
                         TextInput::make('order')
                             ->label('📊 Sıralama Numarası')
                             ->numeric()
-                            ->default(0)
+                            ->default(fn () => Menu::query()->exists() ? ((int) Menu::query()->max('order') + 1) : 0)
                             ->helperText('Küçükten büyüğe sıralanır. Örn: 1, 2, 3...'),
 
                     ])->columns(2),
 
                 Section::make('🔗 Bağlantı Ayarları')
-                    ->description('Menüye tıkladığında nereye gitmesi gerektiğini belirtin.')
+                    ->description('Menüye tıkladığında nereye gitmesi gerektiğini belirtin. İç Sayfalar: /, /hakkimizda, /hizmetler. Dış Linkler: https://example.com')
                     ->schema([
-                        Alert::make('url_examples')
-                            ->title('📌 Link Örnekleri')
-                            ->description('
-                                **İç Sayfalar:**
-                                • `/` – Anasayfa
-                                • `/hakkimizda` – Hakkımızda
-                                • `/hizmetler` – Hizmetler
-                                • `/hizmet/web-tasarimi` – Hizmet detayı
-                                • `/blog` – Blog
-                                • `/iletisim` – İletişim
-                                
-                                **Dış Linkler:**
-                                • `https://example.com`
-                                • `https://facebook.com/yourpage`
-                            ')
-                            ->icon('heroicon-o-link'),
+                        Select::make('page_id')
+                            ->label('📄 Mevcut Sayfadan Seç')
+                            ->options(Page::where('is_active', true)->orderBy('title')->pluck('title', 'id'))
+                            ->searchable()
+                            ->nullable()
+                            ->helperText('Bir sayfa seçerseniz URL alanı otomatik doldurulur.')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                if (filled($state)) {
+                                    $page = Page::find($state);
+                                    if ($page) {
+                                        $set('url', '/' . ltrim($page->slug, '/'));
+                                    }
+                                }
+                            }),
 
                         TextInput::make('url')
                             ->label('🌐 Bağlantı (URL)')
                             ->placeholder('Örn: /hakkimizda veya https://example.com')
+                            ->default(fn () => Menu::query()->exists() ? null : '/')
                             ->required()
                             ->maxLength(500)
                             ->helperText('Menüye tıkladığında gitmesi gereken sayfa adresi.'),
@@ -103,42 +94,37 @@ class MenuForm
                     ])->columns(2),
 
                 Section::make('📌 SEO & Açıklamalar')
-                    ->description('Arama motorları ve ziyaretçiler için bilgiler.')
+                    ->description('Arama motorları ve ziyaretçiler için bilgiler. Meta Title: 30-60 karakter, Meta Description: 120-160 karakter.')
                     ->schema([
                         TextInput::make('meta_title')
                             ->label('📄 SEO Başlığı (Meta Title)')
                             ->placeholder('Otomatik doldurulur')
                             ->maxLength(60)
-                            ->helperText('30-60 karakter idealdir.'),
+                            ->helperText('Arama motorlarında gösterilecek başlık. 30-60 karakter idealdir.'),
 
                         Textarea::make('meta_description')
-                            ->label('📝 SEO Açıklaması')
+                            ->label('📝 SEO Açıklaması (Meta Description)')
                             ->placeholder('Bu menü sayfasının kısa açıklaması.')
                             ->maxLength(160)
-                            ->helperText('120-160 karakter idealdir.')
+                            ->helperText('Arama motorlarında gösterilecek açıklama. 120-160 karakter idealdir.')
                             ->rows(3),
 
                         Textarea::make('description')
                             ->label('📖 Menü Açıklaması')
                             ->placeholder('İsteğe bağlı.')
-                            ->helperText('Zorunlu değildir.')
+                            ->helperText('Bu bilgi sitemizdeki bu menüyü açıklanması için kullanılabilir. Zorunlu değildir.')
                             ->rows(3),
 
                         TextInput::make('icon')
                             ->label('🎨 Bootstrap Icon')
                             ->placeholder('Örn: arrow-right, star-fill')
-                            ->helperText('Bootstrap Icons kullanabilirsiniz.'),
+                            ->helperText('Bootstrap Icons kullanabilirsiniz. Örn: "bi bi-arrow-right"'),
 
                     ])->columns(2),
 
                 Section::make('⚙️ Durum')
-                    ->description('Menünün yayında olup olmadığını kontrol edin.')
+                    ->description('Menüyü pasif yaparsanız, web sitesinde görünmez. Yalnızca yönetim panelinde görülür.')
                     ->schema([
-                        Alert::make('active_status')
-                            ->title('ℹ️ Aktif/Pasif Durumu')
-                            ->description('Menüyü pasif yaparsanız, web sitesinde görünmez.')
-                            ->icon('heroicon-o-information-circle'),
-
                         Toggle::make('is_active')
                             ->label('✅ Bu menüyü web sitesinde göster')
                             ->default(true)

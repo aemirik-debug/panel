@@ -90,16 +90,7 @@ Route::post('/iletisim', function () {
     return back()->with('success', 'Mesajınız başarıyla gönderildi!');
 })->name('contact.store');
 
-// 6. HAKKIMIZDA
-Route::get('/hakkimizda', function () {
-    $theme = 'theme_1';
-    
-    $settings = \App\Models\Setting::first();
-    
-    return view("themes.{$theme}.pages.about", compact('settings'));
-})->name('about');
-
-// 7. REFERANSLAR
+// 6. REFERANSLAR
 Route::get('/referanslar', function () {
     $theme = 'theme_1';
     
@@ -115,3 +106,20 @@ Route::get('/referanslar', function () {
     
     return view("themes.{$theme}.pages.references", compact('clients', 'testimonials', 'settings'));
 })->name('references.index');
+
+// 7. ÖZEL SAYFALAR (Menüden bağlanan içerik sayfaları)
+Route::get('/{slug}', function (string $slug) {
+    $theme = 'theme_1';
+
+    if (!\Illuminate\Support\Facades\Schema::hasTable('pages')) {
+        abort(404);
+    }
+
+    $page = \App\Models\Page::where('slug', $slug)
+        ->where('is_active', true)
+        ->firstOrFail();
+
+    $settings = \App\Models\Setting::first();
+
+    return view("themes.{$theme}.pages.custom-page", compact('page', 'settings'));
+})->where('slug', '^(?!admin|panel|storage).*$')->name('pages.show');

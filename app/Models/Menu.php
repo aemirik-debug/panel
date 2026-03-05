@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Illuminate\Support\Str;
 
 class Menu extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory;
 
     protected $fillable = [
         'title',
@@ -19,6 +18,7 @@ class Menu extends Model
         'icon',
         'order',
         'parent_id',
+        'page_id',
         'is_active',
         'meta_title',
         'meta_description',
@@ -38,6 +38,12 @@ class Menu extends Model
     public function children()
     {
         return $this->hasMany(Menu::class, 'parent_id')->orderBy('order', 'asc');
+    }
+
+    // Bağlantılı sayfa
+    public function page()
+    {
+        return $this->belongsTo(Page::class);
     }
 
     // Slug otomatik oluşturma (saving event'de)
