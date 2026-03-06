@@ -6,6 +6,7 @@ use App\Models\Menu;
 use App\Models\Page;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -49,6 +50,42 @@ class MenuForm
                             })
                             ->helperText('Menü başlığı sayfada görünecek metindir. Kısa ve özlü tutun.'),
 
+                        Select::make('menu_type')
+                            ->label('🧭 Sayfa Tipi')
+                            ->options([
+                                'home' => 'Ana Sayfa',
+                                'about' => 'Hakkımızda',
+                                'services' => 'Hizmetler',
+                                'references' => 'Referanslar',
+                                'portfolio' => 'Projeler',
+                                'blog' => 'Blog',
+                                'contact' => 'İletişim',
+                                'custom_page' => 'Özel Sayfa (Paneldeki Sayfalar)',
+                                'custom_url' => 'Özel URL',
+                            ])
+                            ->default(fn () => Menu::query()->exists() ? 'custom_url' : 'home')
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                if ($state === 'custom_page') {
+                                    $set('url', null);
+
+                                    return;
+                                }
+
+                                if ($state === 'custom_url') {
+                                    return;
+                                }
+
+                                $route = Menu::routeByMenuType((string) $state);
+
+                                if (filled($route)) {
+                                    $set('page_id', null);
+                                    $set('url', $route);
+                                }
+                            })
+                            ->helperText('Standart sayfalar için URL otomatik atanır.'),
+
                         TextInput::make('order')
                             ->label('📊 Sıralama Numarası')
                             ->numeric()
@@ -65,8 +102,10 @@ class MenuForm
                             ->options(Page::where('is_active', true)->orderBy('title')->pluck('title', 'id'))
                             ->searchable()
                             ->nullable()
+                            ->disabled(fn (Get $get) => $get('menu_type') !== 'custom_page')
+                            ->required(fn (Get $get) => $get('menu_type') === 'custom_page')
                             ->helperText('Bir sayfa seçerseniz URL alanı otomatik doldurulur.')
-                            ->live(onBlur: true)
+                            ->live()
                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                 if (filled($state)) {
                                     $page = Page::find($state);
@@ -80,9 +119,10 @@ class MenuForm
                             ->label('🌐 Bağlantı (URL)')
                             ->placeholder('Örn: /hakkimizda veya https://example.com')
                             ->default(fn () => Menu::query()->exists() ? null : '/')
-                            ->required()
+                            ->required(fn (Get $get) => $get('menu_type') !== 'custom_page')
+                            ->disabled(fn (Get $get) => in_array($get('menu_type'), ['home', 'about', 'services', 'references', 'portfolio', 'blog', 'contact'], true))
                             ->maxLength(500)
-                            ->helperText('Menüye tıkladığında gitmesi gereken sayfa adresi.'),
+                            ->helperText('Özel URL tipinde manuel girilir, standart tiplerde otomatik atanır.'),
 
                         TextInput::make('slug')
                             ->label('🔤 SEO Slug')

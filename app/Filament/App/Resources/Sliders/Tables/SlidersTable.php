@@ -27,6 +27,14 @@ class SlidersTable
                 TextColumn::make('title')
                     ->label('Başlık')
                     ->searchable(),
+
+                TextColumn::make('slider_model')
+                    ->label('Model')
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'split_layout' => 'Model 2 - Split',
+                        default => 'Model 1 - Full',
+                    })
+                    ->badge(),
                 
                 ToggleColumn::make('is_active')
                     ->label('Aktif/Pasif'),

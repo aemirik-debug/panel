@@ -34,8 +34,10 @@ class SidebarLinkResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'Medya & Tasarım';
     }
+
+    protected static ?int $navigationSort = 90;
 
     public static function form(Schema $schema): Schema
     {

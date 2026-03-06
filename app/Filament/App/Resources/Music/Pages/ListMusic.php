@@ -16,4 +16,9 @@ class ListMusic extends ListRecords
             CreateAction::make(),
         ];
     }
+    public function getSubheading(): ?string
+    {
+        return 'Bu alanda ilgili kayitlari yonetebilirsiniz.';
+    }
 }
+

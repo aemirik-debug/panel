@@ -11,15 +11,13 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 
 // İŞTE ÇÖZÜM BURADA: "Tables" klasörünü aradan çıkardık, senin sisteminin tanıdığı yolları yazdık
-use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\HtmlString;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 
 class ContactResource extends Resource
 {
@@ -37,8 +35,10 @@ class ContactResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'Diğer Özellikler';
     }
+
+    protected static ?int $navigationSort = 120;
 
     public static function getPluralLabel(): string
     {
@@ -47,73 +47,99 @@ class ContactResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([]);
+        return $schema->components([
+            TextInput::make('name')
+                ->label('Ad Soyad')
+                ->disabled(),
+
+            TextInput::make('email')
+                ->label('Email')
+                ->email()
+                ->disabled(),
+
+            TextInput::make('phone')
+                ->label('Telefon')
+                ->disabled(),
+
+            TextInput::make('subject')
+                ->label('Konu')
+                ->disabled(),
+
+            Textarea::make('message')
+                ->label('Mesaj')
+                ->disabled()
+                ->rows(6),
+
+            Textarea::make('note')
+                ->label('Not')
+                ->rows(3),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable()
+                TextColumn::make('name')
+                    ->label('Ad Soyad')
                     ->searchable(),
 
-                TextColumn::make('form_name')
-                    ->label('Form Adı')
-                    ->sortable()
+                TextColumn::make('subject')
+                    ->label('Konu')
                     ->searchable(),
 
-                TextColumn::make('details')
-                    ->label('Formdan Gelen Değerler')
-                    ->html()
-                    ->getStateUsing(function ($record) {
-                        return new HtmlString("
-                            <b>Ad Soyad:</b> {$record->name} <br>
-                            <b>Cep Telefonu:</b> {$record->phone} <br>
-                            <b>Email:</b> <a href='mailto:{$record->email}' style='color:blue;'>{$record->email}</a> <br>
-                            <b>Mesaj:</b> {$record->message}
-                        ");
-                    }),
-
-                TextColumn::make('created_at')
-                    ->label('Ekleme Tarihi')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable(),
-
-                TextInputColumn::make('note')
-                    ->label('Not')
-                    ->searchable(),
+                TextColumn::make('new_badge')
+                    ->label('Durum')
+                    ->badge()
+                    ->color('danger')
+                    ->state(fn (Contact $record): string => $record->is_read ? '' : 'Yeni'),
             ])
             ->defaultSort('created_at', 'desc')
             ->defaultPaginationPageOption(50)
-            ->filters([
-                SelectFilter::make('form_name')
-                    ->label('Form Seçiniz')
-                    ->options([
-                        'Bilgi Talep Formu' => 'Bilgi Talep Formu',
-                        'İletişim Formu' => 'İletişim Formu',
-                    ]),
-                    
-                SelectFilter::make('is_read')
-                    ->label('İletişim Durumu')
-                    ->options([
-                        1 => 'İletişime Geçildi (Okundu)',
-                        0 => 'İletişime Geçilmedi (Okunmadı)',
-                    ])
-            ])
             ->actions([
-                // Orijinal Action sınıfımızla çalışan dinamik butonumuz
-                Action::make('toggle_status')
-                    ->label(fn ($record) => $record->is_read ? 'İletişime Geçildi' : 'İletişime Geçilmedi')
-                    ->color(fn ($record) => $record->is_read ? 'success' : 'danger')
-                    ->icon(fn ($record) => $record->is_read ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                EditAction::make()
+                    ->label('Detay')
                     ->button()
-                    ->action(function ($record) {
-                        $record->update(['is_read' => !$record->is_read]);
-                    }),
+                    ->icon('heroicon-o-pencil')
+                    ->modalHeading(fn ($record) => "İletişim Formu - {$record->name}")
+                    ->fillForm(function (Contact $record): array {
+                        if (! $record->is_read) {
+                            $record->update(['is_read' => true]);
+                        }
 
-                DeleteAction::make()->label('Sil')->button(),
+                        return $record->attributesToArray();
+                    })
+                    ->form([
+                        TextInput::make('name')
+                            ->label('Ad Soyad')
+                            ->disabled(),
+
+                        TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->disabled(),
+
+                        TextInput::make('phone')
+                            ->label('Telefon')
+                            ->disabled(),
+
+                        TextInput::make('subject')
+                            ->label('Konu')
+                            ->disabled(),
+
+                        Textarea::make('message')
+                            ->label('Mesaj')
+                            ->disabled()
+                            ->rows(6),
+
+                        Textarea::make('note')
+                            ->label('Not')
+                            ->rows(3),
+                    ]),
+
+                DeleteAction::make()
+                    ->label('Sil')
+                    ->button(),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()->label('Seçilileri Sil'),

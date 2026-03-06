@@ -28,4 +28,9 @@ class ListSettings extends ListRecords
         $this->redirect(static::getResource()::getUrl('create'));
     }
 }
+    public function getSubheading(): ?string
+    {
+        return 'Bu alanda ilgili kayitlari yonetebilirsiniz.';
+    }
 }
+

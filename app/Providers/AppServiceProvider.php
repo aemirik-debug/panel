@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Menu;
 use App\Models\Setting;
+use App\Models\Domain;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
@@ -23,14 +24,35 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Frontend tema görünümlerine ortak verileri tek noktadan enjekte et.
-        View::composer('themes.*', function ($view) {
+        // Frontend görünümlerine ortak verileri tek noktadan enjekte et.
+        View::composer(['themes.*', 'layouts.*', 'partials.*'], function ($view) {
             try {
                 $settings = null;
                 $menus = collect();
+                $footerMap = null;
+                $footerCreditText = null;
 
                 if (Schema::hasTable('settings')) {
                     $settings = Setting::first();
+                }
+
+                if (Schema::hasTable('maps')) {
+                    $footerMap = \App\Models\Map::query()
+                        ->where('is_active', true)
+                        ->where('page', 'footer')
+                        ->first();
+                }
+
+                if (Schema::hasTable('domains') && Schema::hasTable('tenants') && Schema::hasColumn('tenants', 'footer_credit_text')) {
+                    $currentHost = request()->getHost();
+                    $domain = Domain::query()
+                        ->where('domain', $currentHost)
+                        ->with('tenant')
+                        ->first();
+
+                    if ($domain && $domain->tenant) {
+                        $footerCreditText = $domain->tenant->footer_credit_text;
+                    }
                 }
 
                 if (Schema::hasTable('menus')) {
@@ -63,10 +85,14 @@ class AppServiceProvider extends ServiceProvider
 
                 $view->with('settings', $settings);
                 $view->with('menus', $menus);
+                $view->with('footerMap', $footerMap);
+                $view->with('footerCreditText', $footerCreditText);
             } catch (\Throwable $e) {
                 // Tema render ederken migration öncesi hatalarda sayfayı kırma.
                 $view->with('settings', null);
                 $view->with('menus', collect());
+                $view->with('footerMap', null);
+                $view->with('footerCreditText', null);
             }
         });
     }

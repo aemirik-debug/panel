@@ -23,6 +23,8 @@ class MenuResource extends Resource
     protected static ?string $model = Menu::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
 
+    protected static ?int $navigationSort = 80;
+
     public static function getNavigationLabel(): string
     {
         return 'Menüler';
@@ -30,7 +32,7 @@ class MenuResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'SİTE YÖNETİMİ';
+        return 'Medya & Tasarım';
     }
 
     public static function getModelLabel(): string

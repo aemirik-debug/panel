@@ -86,14 +86,14 @@ class ServiceForm
                                 ->preload()
                                 ->native(false)
                                 ->options([
-                                    'fa-solid fa-code' => 'Yazılım',
-                                    'fa-solid fa-shirt' => 'Tekstil',
-                                    'fa-solid fa-building' => 'İnşaat',
-                                    'fa-solid fa-stethoscope' => 'Sağlık',
-                                    'fa-solid fa-truck' => 'Lojistik',
-                                    'fa-solid fa-utensils' => 'Restoran',
-                                    'fa-solid fa-store' => 'Mağaza',
-                                    'fa-solid fa-chart-line' => 'Danışmanlık',
+                                    'bi bi-code-slash' => 'Yazılım',
+                                    'bi bi-bag' => 'Tekstil',
+                                    'bi bi-building' => 'İnşaat',
+                                    'bi bi-heart-pulse' => 'Sağlık',
+                                    'bi bi-truck' => 'Lojistik',
+                                    'bi bi-cup-hot' => 'Restoran',
+                                    'bi bi-shop' => 'Mağaza',
+                                    'bi bi-graph-up-arrow' => 'Danışmanlık',
                                 ])
                                 ->allowHtml()
                                 ->getOptionLabelUsing(fn ($value, $label) =>

@@ -21,9 +21,14 @@ class ListContacts extends ListRecords
                 ->icon('heroicon-o-document-arrow-down')
                 ->exports([
                     ExcelExport::make()
-                        ->fromTable() // Tabloda hangi sütunlar varsa otomatik onları alır
-                        ->withFilename('form_kayitlari_' . date('Y_m_d')) // İndirilen dosyanın adı
+                        ->fromTable() // Tabloda hangi sÃ¼tunlar varsa otomatik onlarÄ± alÄ±r
+                        ->withFilename('form_kayitlari_' . date('Y_m_d')) // Ä°ndirilen dosyanÄ±n adÄ±
                 ]),
         ];
     }
+    public function getSubheading(): ?string
+    {
+        return 'Bu alanda ilgili kayitlari yonetebilirsiniz.';
+    }
 }
+

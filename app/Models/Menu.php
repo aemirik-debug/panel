@@ -12,6 +12,7 @@ class Menu extends Model
 
     protected $fillable = [
         'title',
+        'menu_type',
         'url',
         'slug',
         'description',
@@ -27,6 +28,20 @@ class Menu extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public static function routeByMenuType(string $menuType): ?string
+    {
+        return match ($menuType) {
+            'home' => '/',
+            'about' => '/hakkimizda',
+            'services' => '/hizmetler',
+            'references' => '/referanslar',
+            'portfolio' => '/projeler',
+            'blog' => '/blog',
+            'contact' => '/iletisim',
+            default => null,
+        };
+    }
 
     // Üst menüyü getir
     public function parent()
@@ -52,6 +67,22 @@ class Menu extends Model
         static::saving(function ($menu) {
             if (empty($menu->slug) || $menu->isDirty('title')) {
                 $menu->slug = Str::slug($menu->title);
+            }
+
+            if (filled($menu->menu_type) && $menu->menu_type !== 'custom_url' && $menu->menu_type !== 'custom_page') {
+                $mappedRoute = static::routeByMenuType($menu->menu_type);
+
+                if (filled($mappedRoute)) {
+                    $menu->url = $mappedRoute;
+                }
+            }
+
+            if (blank($menu->url) && empty($menu->page_id)) {
+                $routeBySlug = static::routeByMenuType($menu->slug);
+
+                if (filled($routeBySlug)) {
+                    $menu->url = $routeBySlug;
+                }
             }
             
             if (empty($menu->meta_title)) {

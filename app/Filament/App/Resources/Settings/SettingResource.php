@@ -13,6 +13,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Get;
 
 
 class SettingResource extends Resource
@@ -20,10 +23,9 @@ class SettingResource extends Resource
     use HasPackageModule;
 
     protected static ?string $packageModule = 'settings';
-    // BU FONKSİYONU EKLE, ESKİ SATIRI SİL
     public static function getNavigationGroup(): ?string
     {
-        return 'SİTE YÖNETİMİ';
+        return 'Sistem & Ayarlar';
     }
 
     public static function getNavigationLabel(): string
@@ -33,8 +35,7 @@ class SettingResource extends Resource
     protected static ?string $model = Setting::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationLabel = 'Site Ayarları';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 100;
 
     // 🔥 TEK KAYIT OLSUN
     public static function canCreate(): bool
@@ -59,6 +60,11 @@ class SettingResource extends Resource
                             TextInput::make('phone')
                                 ->label('Telefon'),
 
+                            TextInput::make('whatsapp_number')
+                                ->label('WhatsApp Numarası')
+                                ->helperText('Örn: 905001234567 (ülke kodu ile birlikte, başında + olmadan)')
+                                ->placeholder('905001234567'),
+
                             TextInput::make('email')
                                 ->label('E-Posta'),
 
@@ -68,6 +74,7 @@ class SettingResource extends Resource
 
                             FileUpload::make('logo')
                                 ->label('Logo')
+                                ->helperText('Onerilen olcu: 200x100 px. Logo bu boyutta yuklenmelidir.')
                                 ->image()
                                 ->directory('settings'),
 
@@ -103,27 +110,27 @@ class SettingResource extends Resource
                             ->label('SEO Açıklaması')
                             ->rows(2),
                     ]),
-					Section::make('Ana Sayfa Hero Alanı')
-					->schema([
 
-						TextInput::make('hero_title')
-							->label('Başlık'),
+                    Section::make('Ana Sayfa Bolumleri')
+                        ->schema([
+                            TextInput::make('services_section_title')
+                                ->label('Hizmetler Bolumu Basligi')
+                                ->default('Hizmetlerimiz')
+                                ->maxLength(255),
 
-						Textarea::make('hero_subtitle')
-							->label('Alt Başlık')
-							->rows(2),
+                            Textarea::make('services_description')
+                                ->label('Hizmetler Bolumu Aciklamasi')
+                                ->rows(2),
 
-						TextInput::make('hero_button_text')
-							->label('Buton Yazısı'),
+                            TextInput::make('cta_title')
+                                ->label('Harekete Gec Basligi')
+                                ->default('Harekete Gec')
+                                ->maxLength(255),
 
-						TextInput::make('hero_button_link')
-							->label('Buton Linki'),
-
-						FileUpload::make('hero_background')
-							->label('Arka Plan Görseli')
-							->image()
-							->directory('settings'),
-					]),
+                            Textarea::make('cta_description')
+                                ->label('Harekete Gec Aciklamasi')
+                                ->rows(2),
+                        ]),
 					Section::make('Tema Ayarları')
 					->collapsed()
 					->schema([
@@ -139,6 +146,55 @@ class SettingResource extends Resource
 						]),
 					]),
 
+                Section::make('İletişim Formu Bildirimleri')
+                    ->collapsed()
+                    ->schema([
+                        Toggle::make('send_contact_notifications')
+                            ->label('Formdan gelen mesajları e-posta ile bildir')
+                            ->default(false)
+                            ->inline(false),
+
+                        TextInput::make('contact_notification_email')
+                            ->label('Bildirim E-Posta Adresi')
+                            ->email()
+                            ->maxLength(255)
+                            ->placeholder('ornek@firma.com')
+                            ->visible(fn (Get $get) => (bool) $get('send_contact_notifications'))
+                            ->helperText('Açık olduğunda iletişim formu gönderimleri bu adrese iletilir.'),
+                    ]),
+
+                Section::make('Referanslar Sayfası')
+                    ->collapsed()
+                    ->schema([
+                        TextInput::make('references_section_title')
+                            ->label('Bölüm Başlığı')
+                            ->default('Müşteri Referansları')
+                            ->maxLength(255)
+                            ->helperText('Referanslar sayfası ve ana sayfadaki referanslar alanı başlığı.'),
+
+                        Textarea::make('references_section_description')
+                            ->label('Bölüm Açıklaması')
+                            ->default('Bizimle çalışan müşterilerimizin değerlendirmeleri')
+                            ->rows(2)
+                            ->helperText('Referanslar sayfası ve ana sayfadaki referanslar alanı açıklaması.'),
+                    ]),
+
+                Section::make('Projeler Sayfası')
+                    ->collapsed()
+                    ->schema([
+                        TextInput::make('portfolio_section_title')
+                            ->label('Bölüm Başlığı')
+                            ->default('Projelerimiz')
+                            ->maxLength(255)
+                            ->helperText('Projeler sayfasındaki ana başlık.'),
+
+                        Textarea::make('portfolio_section_description')
+                            ->label('Bölüm Açıklaması')
+                            ->default('Gerçekleştirdiğimiz başarılı projeler ve çalışmalarımız')
+                            ->rows(2)
+                            ->helperText('Başlığın altında görünecek kısa açıklama.'),
+                    ]),
+
             ]);
     }
 
@@ -152,6 +208,7 @@ class SettingResource extends Resource
     {
         return [
             'index' => Pages\ListSettings::route('/'),
+            'create' => Pages\CreateSetting::route('/create'),
             'edit' => Pages\EditSetting::route('/{record}/edit'),
         ];
     }

@@ -11,7 +11,12 @@ class ListQuizResults extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        // Panelden yeni sınav sonucu eklenemeyeceği için boş bırakıyoruz
+        // Panelden yeni sÄ±nav sonucu eklenemeyeceÄŸi iÃ§in boÅŸ bÄ±rakÄ±yoruz
         return [];
     }
+    public function getSubheading(): ?string
+    {
+        return 'Bu alanda ilgili kayitlari yonetebilirsiniz.';
+    }
 }
+

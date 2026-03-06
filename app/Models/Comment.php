@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 class Comment extends Model
 {
-    use BelongsToTenant;
+    use TenantConnection;
     
     protected $fillable = [
         'name_surname',
+        'image',
+        'position',
         'comment',
         'is_active',
     ];

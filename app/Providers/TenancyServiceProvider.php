@@ -122,6 +122,18 @@ class TenancyServiceProvider extends ServiceProvider
                     'password' => \Illuminate\Support\Facades\Hash::make('12345678'),
                 ]);
 
+                $activeModules = $tenant->modules ?? \App\Models\Tenant::getPackageModules($tenant->package ?? 'baslangic');
+
+                if (in_array('maps', $activeModules, true)) {
+                    \App\Models\Map::firstOrCreate(
+                        ['page' => 'iletisim', 'title' => 'Merkez Ofis'],
+                        [
+                            'iframe_code' => '<iframe src="https://maps.google.com/maps?q=Istanbul&output=embed" width="100%" height="380" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+                            'is_active' => true,
+                        ]
+                    );
+                }
+
                 // 2. İleride buraya 'Varsayılan Slider', 'Varsayılan Kategoriler' 
                 // ekleme komutlarını da yazacağız.
             });

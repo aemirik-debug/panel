@@ -11,9 +11,12 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Support\Icons\Heroicon;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
 
 class CommentResource extends Resource
 {
@@ -22,35 +25,62 @@ class CommentResource extends Resource
     protected static ?string $packageModule = 'comments';
     protected static ?string $model = Comment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
 
     public static function getNavigationLabel(): string
     {
-        return 'Yorumlar';
+        return 'Referanslar';
     }
 
-    // HATAYI ÇÖZEN KISIM: Grup ismini mülkiyet olarak değil, fonksiyon olarak verdik
-   public static function getNavigationGroup(): ?string
+    public static function getPluralLabel(): string
     {
-        return 'SİTE YÖNETİMİ';
+        return 'Referanslar';
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Diğer Özellikler';
+    }
+
+    protected static ?int $navigationSort = 170;
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Müşteri Yorumu')
+                \Filament\Schemas\Components\Section::make('Referans Detayları')
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('name_surname')
-                            ->label('İsim Soyisim')
-                            ->required(),
+                        TextInput::make('name_surname')
+                            ->label('Firma Adi')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('position')
+                            ->label('Proje / Hizmet Basligi')
+                            ->helperText('Orn: Kurumsal Web Sitesi, E-Ticaret Donusumu')
+                            ->maxLength(255),
+
+                        FileUpload::make('image')
+                            ->label('Firma Logosu (250x250)')
+                            ->image()
+                            ->directory('referrals')
+                            // Tum gorselleri merkezden kirp ve 250x250 standardina getir.
+                            ->imageEditor()
+                            ->imageResizeMode('cover')
+                            ->imageResizeTargetWidth('250')
+                            ->imageResizeTargetHeight('250')
+                            ->helperText('Sistem logoyu ortalayip 250x250 olarak kaydeder.'),
+
                         \Filament\Forms\Components\Textarea::make('comment')
-                            ->label('Yorum Metni')
-                            ->required(),
+                            ->label('Kisa Proje Aciklamasi')
+                            ->required()
+                            ->rows(5),
+
                         \Filament\Forms\Components\Toggle::make('is_active')
-                            ->label('Onaylı mı?')
+                            ->label('Yayınla')
                             ->default(true),
                     ])
+                    ->columns(2)
             ]);
     }
 
@@ -58,11 +88,30 @@ class CommentResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('ID'),
-                TextColumn::make('name_surname')->label('Müşteri')->searchable(),
-                TextColumn::make('comment')->label('Yorum')->limit(50),
-                ToggleColumn::make('is_active')->label('Durum'),
-                TextColumn::make('created_at')->label('Tarih')->dateTime('d.m.Y'),
+                ImageColumn::make('image')
+                    ->label('Görüntü')
+                    ->square()
+                    ->size(56),
+
+                TextColumn::make('name_surname')
+                    ->label('Firma')
+                    ->searchable(),
+
+                TextColumn::make('position')
+                    ->label('Proje')
+                    ->limit(30),
+
+                TextColumn::make('comment')
+                    ->label('Aciklama')
+                    ->limit(50),
+
+                ToggleColumn::make('is_active')
+                    ->label('Yayında'),
+
+                TextColumn::make('created_at')
+                    ->label('Tarih')
+                    ->dateTime('d.m.Y')
+                    ->sortable(),
             ])
             ->actions([
                 EditAction::make()->label('Düzenle')->button(),

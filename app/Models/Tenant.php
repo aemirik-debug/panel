@@ -21,6 +21,7 @@ protected $casts = [
             'id',
             'package',
             'theme',
+            'footer_credit_text',
             'modules',
         ];
     }
@@ -34,15 +35,19 @@ protected $casts = [
             'baslangic' => [
                 'services',      // Hizmetler
                 'contacts',      // İletişim Formları
+                'maps',          // Haritalar
                 'galleries',     // Galeriler
                 'sliders',       // Slider
                 'settings',      // Site Ayarları
                 'menus',         // Menü Yönetimi
                 'pages',         // Özel Sayfalar
+                'comments',      // Referanslar
+                'portfolios',    // Projeler
             ],
             'profesyonel' => [
                 'services',
                 'contacts',
+                'maps',
                 'galleries',
                 'sliders',
                 'settings',
@@ -51,6 +56,7 @@ protected $casts = [
                 'posts',         // Blog/İçerik
                 'categories',    // Kategoriler
                 'comments',      // Yorumlar
+                'portfolios',    // Projeler
                 'sidebar_links', // Sidebar Linkleri
             ],
             'kurumsal' => [
@@ -64,6 +70,7 @@ protected $casts = [
                 'posts',
                 'categories',
                 'comments',
+                'portfolios',    // Projeler
                 'sidebar_links',
                 'events',        // Etkinlikler
                 'quizzes',       // Anketler

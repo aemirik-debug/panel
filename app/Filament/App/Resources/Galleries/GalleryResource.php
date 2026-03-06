@@ -33,6 +33,8 @@ class GalleryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
 
+    protected static ?int $navigationSort = 50;
+
     public static function getNavigationLabel(): string
     {
         return 'Fotoğraf Galerisi';
@@ -40,7 +42,7 @@ class GalleryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'Medya & Tasarım';
     }
 
     public static function getPluralLabel(): string

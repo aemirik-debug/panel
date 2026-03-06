@@ -34,6 +34,27 @@ class MenusTable
                     ->limit(40)
                     ->tooltip(fn(Menu $record): string => $record->url),
 
+                Tables\Columns\TextColumn::make('menu_type')
+                    ->label('🧭 Sayfa Tipi')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'home' => 'Ana Sayfa',
+                        'about' => 'Hakkımızda',
+                        'services' => 'Hizmetler',
+                        'references' => 'Referanslar',
+                        'portfolio' => 'Projeler',
+                        'blog' => 'Blog',
+                        'contact' => 'İletişim',
+                        'custom_page' => 'Özel Sayfa',
+                        'custom_url', null, '' => 'Özel URL',
+                        default => $state,
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'home', 'about', 'services', 'references', 'portfolio', 'blog', 'contact' => 'success',
+                        'custom_page' => 'warning',
+                        default => 'gray',
+                    }),
+
                 Tables\Columns\TextColumn::make('page.title')
                     ->label('📄 Bağlantılı Sayfa')
                     ->placeholder('—')

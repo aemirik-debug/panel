@@ -38,8 +38,10 @@ class CategoryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'İçerik Yönetimi';
     }
+
+    protected static ?int $navigationSort = 40;
 
     public static function getPluralLabel(): string
     {

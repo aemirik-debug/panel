@@ -3,6 +3,17 @@
 @section('title', 'İletişim - ' . ($settings->site_name ?? 'İletişim'))
 @section('body-class', 'contact-page')
 
+@push('styles')
+<style>
+  .map-container iframe {
+    width: 100%;
+    height: 300px;
+    border: 0;
+    border-radius: 8px;
+  }
+</style>
+@endpush
+
 @section('content')
 
 <!-- Page Title -->
@@ -21,9 +32,19 @@
 <!-- Contact Section -->
 <section id="contact" class="contact section">
 
-  @if($settings && $settings->map_iframe)
-    <div class="mb-5">
-      {!! $settings->map_iframe !!}
+  @if(isset($maps) && $maps->count() > 1)
+    {{-- Birden fazla harita varsa üstte 3'lü grid olarak göster --}}
+    <div class="container mb-5" data-aos="fade">
+      <div class="row gy-4">
+        @foreach($maps as $map)
+          <div class="col-lg-4 col-md-6">
+            <h5 class="mb-3">{{ $map->title }}</h5>
+            <div class="map-container" style="position: relative; overflow: hidden; border-radius: 8px;">
+              {!! $map->iframe_code !!}
+            </div>
+          </div>
+        @endforeach
+      </div>
     </div>
   @endif
 
@@ -67,6 +88,16 @@
             </div>
           @endif
 
+          @if(isset($maps) && $maps->count() === 1)
+            {{-- Tek harita varsa buraya yerleştir --}}
+            <div class="mt-4">
+              <h5 class="mb-3">{{ $maps->first()->title }}</h5>
+              <div class="map-container" style="position: relative; overflow: hidden; border-radius: 8px;">
+                {!! $maps->first()->iframe_code !!}
+              </div>
+            </div>
+          @endif
+
         </div>
 
       </div>
@@ -74,22 +105,37 @@
       <div class="col-lg-8">
         <form action="{{ url('/iletisim') }}" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
           @csrf
+
+          @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+          @endif
+
+          @if ($errors->any())
+            <div class="alert alert-danger">
+              Lütfen form alanlarını kontrol edin.
+            </div>
+          @endif
+
           <div class="row gy-4">
 
             <div class="col-md-6">
-              <input type="text" name="name" class="form-control" placeholder="Adınız" required>
+              <input type="text" name="name" class="form-control" placeholder="Adınız" value="{{ old('name') }}" required>
             </div>
 
             <div class="col-md-6">
-              <input type="email" class="form-control" name="email" placeholder="Email Adresiniz" required>
+              <input type="email" class="form-control" name="email" placeholder="Email Adresiniz" value="{{ old('email') }}" required>
             </div>
 
             <div class="col-md-12">
-              <input type="text" class="form-control" name="subject" placeholder="Konu" required>
+              <input type="text" class="form-control" name="phone" placeholder="Telefon (opsiyonel)" value="{{ old('phone') }}">
             </div>
 
             <div class="col-md-12">
-              <textarea class="form-control" name="message" rows="8" placeholder="Mesajınız" required></textarea>
+              <input type="text" class="form-control" name="subject" placeholder="Konu" value="{{ old('subject') }}" required>
+            </div>
+
+            <div class="col-md-12">
+              <textarea class="form-control" name="message" rows="8" placeholder="Mesajınız" required>{{ old('message') }}</textarea>
             </div>
 
             <div class="col-md-12 text-center">

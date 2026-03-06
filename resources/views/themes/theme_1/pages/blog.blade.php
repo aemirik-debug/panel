@@ -3,6 +3,33 @@
 @section('title', 'Blog - ' . ($settings->site_name ?? 'Blog'))
 @section('body-class', 'blog-page')
 
+@push('styles')
+<style>
+  .blog-posts .blog-card {
+    overflow: hidden;
+  }
+
+  .blog-posts .blog-card .post-img {
+    margin: 0 0 16px 0;
+    max-height: 260px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .blog-posts .blog-card .post-img img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .blog-posts .blog-card .title {
+    margin: 12px 0;
+    font-size: 22px;
+  }
+</style>
+@endpush
+
 @section('content')
 
 <!-- Page Title -->
@@ -31,12 +58,12 @@
           <div class="row gy-4">
 
             @forelse($posts as $post)
-              <div class="col-12">
-                <article>
+              <div class="col-md-6">
+                <article class="blog-card h-100 p-3 border rounded-3 shadow-sm bg-white">
 
-                  @if($post->image_path)
+                  @if($post->featured_image)
                     <div class="post-img">
-                      <img src="{{ asset('storage/' . $post->image_path) }}" alt="{{ $post->title }}" class="img-fluid">
+                      <img src="{{ asset('storage/' . $post->featured_image) }}" alt="{{ $post->title }}" class="img-fluid">
                     </div>
                   @endif
 
@@ -46,16 +73,12 @@
 
                   <div class="meta-top">
                     <ul>
-                      <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a href="#">{{ $post->author ?? 'Admin' }}</a></li>
                       <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a href="#"><time datetime="{{ $post->created_at->format('Y-m-d') }}">{{ $post->created_at->format('d M Y') }}</time></a></li>
-                      @if($post->category)
-                        <li class="d-flex align-items-center"><i class="bi bi-folder2"></i> <a href="#">{{ $post->category->name }}</a></li>
-                      @endif
                     </ul>
                   </div>
 
                   <div class="content">
-                    <p>{{ Str::limit(strip_tags($post->content), 300) }}</p>
+                    <p>{{ Str::limit(strip_tags($post->content), 160) }}</p>
                     <div class="read-more">
                       <a href="{{ url('/blog/' . $post->slug) }}">Devamını Oku</a>
                     </div>
@@ -98,25 +121,15 @@
           </form>
         </div>
 
-        <!-- Categories Widget -->
-        @if(isset($categories) && $categories->count() > 0)
-        <div class="categories-widget widget-item">
-          <h3 class="widget-title">Kategoriler</h3>
-          <ul class="mt-3">
-            @foreach($categories as $category)
-              <li><a href="{{ url('/blog?category=' . $category->slug) }}">{{ $category->name }} <span>({{ $category->posts_count ?? 0 }})</span></a></li>
-            @endforeach
-          </ul>
-        </div>
-        @endif
-
         <!-- Recent Posts Widget -->
         @if(isset($recentPosts) && $recentPosts->count() > 0)
         <div class="recent-posts-widget widget-item">
           <h3 class="widget-title">Son Yazılar</h3>
           @foreach($recentPosts as $recent)
             <div class="post-item">
-              <img src="{{ asset('storage/' . $recent->image_path) }}" alt="{{ $recent->title }}" class="flex-shrink-0">
+              @if($recent->featured_image)
+                <img src="{{ asset('storage/' . $recent->featured_image) }}" alt="{{ $recent->title }}" class="flex-shrink-0">
+              @endif
               <div>
                 <h4><a href="{{ url('/blog/' . $recent->slug) }}">{{ $recent->title }}</a></h4>
                 <time datetime="{{ $recent->created_at->format('Y-m-d') }}">{{ $recent->created_at->format('d M Y') }}</time>

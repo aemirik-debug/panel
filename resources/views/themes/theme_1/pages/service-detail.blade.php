@@ -28,6 +28,7 @@
     <div class="row gy-4">
 
       <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <h3 class="sidebar-title mb-3">Hizmetlerimiz</h3>
         <div class="services-list">
           @php
             $allServices = \App\Models\Service::where('is_active', true)
@@ -41,19 +42,31 @@
             </a>
           @endforeach
         </div>
-
-        @if($service->short_description)
-          <h4>{{ explode('.', $service->short_description)[0] ?? '' }}</h4>
-          <p>{{ $service->short_description }}</p>
-        @endif
       </div>
 
       <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
-        @if($service->image)
-          <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" class="img-fluid services-img">
-        @endif
-        
         <h3>{{ $service->title }}</h3>
+
+        <!-- Image and Short Description Row -->
+        @if($service->image || $service->short_description)
+          <div class="row mb-4">
+            @if($service->image)
+              <div class="col-md-6 d-flex align-items-start">
+                <div style="width: 100%; max-width: 400px; height: 400px; overflow: hidden; border-radius: 8px;">
+                  <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" style="width: 100%; height: 100%; object-fit: cover;" class="services-img">
+                </div>
+              </div>
+            @endif
+            
+            @if($service->short_description)
+              <div class="col-md-6 d-flex align-items-start">
+                <div>
+                  <p class="text-muted">{{ $service->short_description }}</p>
+                </div>
+              </div>
+            @endif
+          </div>
+        @endif
         
         <div class="service-content">
           {!! $service->description !!}
@@ -69,6 +82,7 @@
         
         @if($service->long_description)
           <div class="mt-4">
+            <h4>Detaylı Açıklama</h4>
             {!! $service->long_description !!}
           </div>
         @endif

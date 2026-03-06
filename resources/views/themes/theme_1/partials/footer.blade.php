@@ -1,11 +1,28 @@
 <footer id="footer" class="footer dark-background">
+  @php
+    $twitterUrl = $settings->twitter ?? $settings->twitter_url ?? null;
+    $facebookUrl = $settings->facebook ?? $settings->facebook_url ?? null;
+    $instagramUrl = $settings->instagram ?? $settings->instagram_url ?? null;
+    $linkedinUrl = $settings->linkedin ?? $settings->linkedin_url ?? null;
+  @endphp
+
+  <style>
+    .footer .map-container iframe {
+      width: 70%;
+      height: 175px;
+      margin: 0 auto;
+      display: block;
+      border: 0;
+      border-radius: 8px;
+    }
+  </style>
 
   <div class="footer-top">
     <div class="container">
       <div class="row gy-4">
         <div class="col-lg-4 col-md-6 footer-about">
           <a href="{{ url('/') }}" class="logo d-flex align-items-center">
-            <span class="sitename">{{ $settings->site_name ?? 'Flattern' }}</span>
+            <span class="sitename" style="font-size: 1.5rem;">{{ $settings->site_name ?? 'Flattern' }}</span>
           </a>
           <div class="footer-contact pt-3">
             @if($settings && $settings->address)
@@ -19,17 +36,17 @@
             @endif
           </div>
           <div class="social-links d-flex mt-4">
-            @if($settings && $settings->twitter_url)
-              <a href="{{ $settings->twitter_url }}"><i class="bi bi-twitter-x"></i></a>
+            @if($twitterUrl)
+              <a href="{{ $twitterUrl }}"><i class="bi bi-twitter-x"></i></a>
             @endif
-            @if($settings && $settings->facebook_url)
-              <a href="{{ $settings->facebook_url }}"><i class="bi bi-facebook"></i></a>
+            @if($facebookUrl)
+              <a href="{{ $facebookUrl }}"><i class="bi bi-facebook"></i></a>
             @endif
-            @if($settings && $settings->instagram_url)
-              <a href="{{ $settings->instagram_url }}"><i class="bi bi-instagram"></i></a>
+            @if($instagramUrl)
+              <a href="{{ $instagramUrl }}"><i class="bi bi-instagram"></i></a>
             @endif
-            @if($settings && $settings->linkedin_url)
-              <a href="{{ $settings->linkedin_url }}"><i class="bi bi-linkedin"></i></a>
+            @if($linkedinUrl)
+              <a href="{{ $linkedinUrl }}"><i class="bi bi-linkedin"></i></a>
             @endif
           </div>
         </div>
@@ -40,6 +57,7 @@
             <li><a href="{{ url('/') }}">Ana Sayfa</a></li>
             <li><a href="{{ url('/hakkimizda') }}">Hakkımızda</a></li>
             <li><a href="{{ url('/hizmetler') }}">Hizmetler</a></li>
+            <li><a href="{{ url('/urunler') }}">Ürünler</a></li>
             <li><a href="{{ url('/blog') }}">Blog</a></li>
             <li><a href="{{ url('/iletisim') }}">İletişim</a></li>
           </ul>
@@ -57,14 +75,21 @@
         </div>
 
         <div class="col-lg-4 col-md-12 footer-newsletter">
-          <h4>Bültenimize Katılın</h4>
-          <p>Son haberlerden haberdar olmak için bültenimize abone olun!</p>
-          <form action="" method="post" class="php-email-form">
-            <div class="newsletter-form"><input type="email" name="email"><input type="submit" value="Abone Ol"></div>
-            <div class="loading">Yükleniyor</div>
-            <div class="error-message"></div>
-            <div class="sent-message">Abonelik talebiniz gönderildi. Teşekkürler!</div>
-          </form>
+          @if(isset($footerMap) && $footerMap)
+            <h4>{{ $footerMap->title }}</h4>
+            <div class="map-container" style="position: relative; overflow: hidden; border-radius: 8px; margin-top: 15px;">
+              {!! $footerMap->iframe_code !!}
+            </div>
+          @else
+            <h4>Bültenimize Katılın</h4>
+            <p>Son haberlerden haberdar olmak için bültenimize abone olun!</p>
+            <form action="" method="post" class="php-email-form">
+              <div class="newsletter-form"><input type="email" name="email"><input type="submit" value="Abone Ol"></div>
+              <div class="loading">Yükleniyor</div>
+              <div class="error-message"></div>
+              <div class="sent-message">Abonelik talebiniz gönderildi. Teşekkürler!</div>
+            </form>
+          @endif
         </div>
 
       </div>
@@ -79,22 +104,22 @@
           © Copyright <strong><span>{{ $settings->site_name ?? 'Flattern' }}</span></strong>. Tüm Hakları Saklıdır
         </div>
         <div class="credits">
-          Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+          {{ $footerCreditText ?? 'Designed by BootstrapMade' }}
         </div>
       </div>
 
       <div class="social-links order-first order-lg-last mb-3 mb-lg-0">
-        @if($settings && $settings->twitter_url)
-          <a href="{{ $settings->twitter_url }}"><i class="bi bi-twitter-x"></i></a>
+        @if($twitterUrl)
+          <a href="{{ $twitterUrl }}"><i class="bi bi-twitter-x"></i></a>
         @endif
-        @if($settings && $settings->facebook_url)
-          <a href="{{ $settings->facebook_url }}"><i class="bi bi-facebook"></i></a>
+        @if($facebookUrl)
+          <a href="{{ $facebookUrl }}"><i class="bi bi-facebook"></i></a>
         @endif
-        @if($settings && $settings->instagram_url)
-          <a href="{{ $settings->instagram_url }}"><i class="bi bi-instagram"></i></a>
+        @if($instagramUrl)
+          <a href="{{ $instagramUrl }}"><i class="bi bi-instagram"></i></a>
         @endif
-        @if($settings && $settings->linkedin_url)
-          <a href="{{ $settings->linkedin_url }}"><i class="bi bi-linkedin"></i></a>
+        @if($linkedinUrl)
+          <a href="{{ $linkedinUrl }}"><i class="bi bi-linkedin"></i></a>
         @endif
       </div>
 

@@ -40,8 +40,10 @@ class QuizResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'Diğer Özellikler';
     }
+
+    protected static ?int $navigationSort = 140;
 
     public static function getPluralLabel(): string
     {
