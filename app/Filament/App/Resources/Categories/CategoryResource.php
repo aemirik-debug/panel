@@ -33,19 +33,19 @@ class CategoryResource extends Resource
     // Bütün tip hatalarını önleyen garantili metodlar:
     public static function getNavigationLabel(): string
     {
-        return 'Kategoriler';
+        return 'Ürün Kategorileri';
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return 'İçerik Yönetimi';
+        return 'Ürün Yönetimi';
     }
 
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 20;
 
     public static function getPluralLabel(): string
     {
-        return 'Kategoriler';
+        return 'Ürün Kategorileri';
     }
 
     public static function form(Schema $schema): Schema

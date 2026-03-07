@@ -30,10 +30,10 @@ class CustomPageResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Sistem & Ayarlar';
+        return 'Kurumsal İçerik';
     }
 
-    protected static ?int $navigationSort = 105;
+    protected static ?int $navigationSort = 20;
 
     public static function getModelLabel(): string
     {

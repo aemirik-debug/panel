@@ -1,9 +1,11 @@
 <footer id="footer" class="footer dark-background">
   @php
-    $twitterUrl = $settings->twitter ?? $settings->twitter_url ?? null;
-    $facebookUrl = $settings->facebook ?? $settings->facebook_url ?? null;
-    $instagramUrl = $settings->instagram ?? $settings->instagram_url ?? null;
-    $linkedinUrl = $settings->linkedin ?? $settings->linkedin_url ?? null;
+    $socialMedia = \App\Models\SocialMedia::query()->first();
+
+    $twitterUrl = $socialMedia->twitter ?? null;
+    $facebookUrl = $socialMedia->facebook ?? null;
+    $instagramUrl = $socialMedia->instagram ?? null;
+    $linkedinUrl = $socialMedia->linkedin ?? null;
   @endphp
 
   <style>
@@ -58,6 +60,7 @@
             <li><a href="{{ url('/hakkimizda') }}">Hakkımızda</a></li>
             <li><a href="{{ url('/hizmetler') }}">Hizmetler</a></li>
             <li><a href="{{ url('/urunler') }}">Ürünler</a></li>
+            <li><a href="{{ route('photo-gallery.index') }}">Foto Galeri</a></li>
             <li><a href="{{ url('/blog') }}">Blog</a></li>
             <li><a href="{{ url('/iletisim') }}">İletişim</a></li>
           </ul>

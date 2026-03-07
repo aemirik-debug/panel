@@ -15,7 +15,9 @@
         {{ $this->form }}
 
         <div class="flex gap-3">
-            {{ $this->getFormAction('submit') }}
+            @foreach ($this->getFormActions() as $action)
+                {{ $action }}
+            @endforeach
         </div>
     </div>
 </x-filament-panels::page>

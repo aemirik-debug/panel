@@ -34,7 +34,7 @@ class ServiceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'İçerik Yönetimi';
+        return 'Kurumsal İçerik';
     }
 
     public static function getPluralLabel(): string

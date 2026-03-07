@@ -237,4 +237,36 @@
 @empty
 @endforelse
 
+@if(isset($serviceAlbums) && $serviceAlbums->count() > 0)
+  <section id="service-albums" class="portfolio section pt-0">
+    <div class="container section-title" data-aos="fade-up">
+      <h2>Hizmet Galerisi</h2>
+      <p>Hizmetler bölümünde gösterilen albümler</p>
+    </div>
+
+    <div class="container">
+      @foreach($serviceAlbums as $album)
+        @php
+          $albumImages = collect($album->images ?? [])->take(8);
+        @endphp
+
+        @if($albumImages->isNotEmpty())
+          <h4 class="mb-3">{{ $album->title }}</h4>
+          <div class="row gy-4 mb-5">
+            @foreach($albumImages as $image)
+              <div class="col-lg-3 col-md-4 col-6 portfolio-item">
+                <img src="{{ asset('storage/' . $image) }}" class="img-fluid" alt="{{ $album->title }}">
+                <div class="portfolio-info">
+                  <h5>{{ $album->title }}</h5>
+                  <a href="{{ asset('storage/' . $image) }}" title="{{ $album->title }}" data-gallery="service-album-{{ $album->id }}" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @endif
+      @endforeach
+    </div>
+  </section>
+@endif
+
 @endsection

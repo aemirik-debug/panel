@@ -42,6 +42,13 @@ class AppPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
+            ->navigationGroups([
+                'Kurumsal İçerik',
+                'Ürün Yönetimi',
+                'Görsel & Medya',
+                'İletişim & Etkileşim',
+                'Yapılandırma',
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

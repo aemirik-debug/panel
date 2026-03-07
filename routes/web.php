@@ -59,20 +59,19 @@ Route::get('/', function () {
         ->get();
     
     $settings = \App\Models\Setting::first();
-    
-    $galleries = \App\Models\Gallery::where('is_active', true)
+
+    $homeAlbums = \App\Models\Album::where('is_active', true)
+        ->whereJsonContains('show_on', 'home')
         ->orderBy('order', 'asc')
         ->get();
 
-    $references = $galleries->isNotEmpty()
-        ? $galleries
-        : \App\Models\Portfolio::where('is_active', true)
-            ->orderBy('order', 'asc')
-            ->get();
+    $references = \App\Models\Portfolio::where('is_active', true)
+        ->orderBy('order', 'asc')
+        ->get();
 
     $posts = \App\Models\Post::where('is_active', true)->orderBy('created_at', 'desc')->get();
     
-    return view("themes.{$theme}.pages.welcome", compact('services', 'sliders', 'settings', 'galleries', 'references', 'posts'));
+    return view("themes.{$theme}.pages.welcome", compact('services', 'sliders', 'settings', 'homeAlbums', 'references', 'posts'));
 });
 
 // 2. HİZMET DETAY
@@ -98,9 +97,37 @@ Route::get('/hizmetler', function () {
         ->get();
     
     $settings = \App\Models\Setting::first();
-    
-    return view("themes.{$theme}.pages.services", compact('services', 'settings'));
+
+    $serviceAlbums = \App\Models\Album::where('is_active', true)
+        ->whereJsonContains('show_on', 'services')
+        ->orderBy('order', 'asc')
+        ->get();
+
+    return view("themes.{$theme}.pages.services", compact('services', 'settings', 'serviceAlbums'));
 })->name('services.index');
+
+Route::get('/foto-galeri', function () {
+    $theme = 'theme_1';
+
+    $albums = \App\Models\Album::where('is_active', true)
+        ->orderBy('order', 'asc')
+        ->get();
+
+    $selectedAlbum = null;
+    $selectedSlug = request('album');
+
+    if ($selectedSlug) {
+        $selectedAlbum = $albums->firstWhere('slug', $selectedSlug);
+    }
+
+    if (! $selectedAlbum) {
+        $selectedAlbum = $albums->first();
+    }
+
+    $settings = \App\Models\Setting::first();
+
+    return view("themes.{$theme}.pages.photo-gallery", compact('albums', 'selectedAlbum', 'settings'));
+})->name('photo-gallery.index');
 
 // 3.1 URUNLER LISTESI
 Route::get('/urunler', function () {
@@ -286,5 +313,13 @@ Route::get('/{slug}', function (string $slug) {
 
     $settings = \App\Models\Setting::first();
 
-    return view("themes.{$theme}.pages.custom-page", compact('page', 'settings'));
+    $aboutAlbums = collect();
+    if ($slug === 'hakkimizda') {
+        $aboutAlbums = \App\Models\Album::where('is_active', true)
+            ->whereJsonContains('show_on', 'about')
+            ->orderBy('order', 'asc')
+            ->get();
+    }
+
+    return view("themes.{$theme}.pages.custom-page", compact('page', 'settings', 'aboutAlbums'));
 })->where('slug', '^(?!admin|panel|storage).*$')->name('pages.show');

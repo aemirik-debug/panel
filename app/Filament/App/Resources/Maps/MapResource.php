@@ -39,10 +39,10 @@ class MapResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Diğer Özellikler';
+        return 'İletişim & Etkileşim';
     }
 
-    protected static ?int $navigationSort = 160;
+    protected static ?int $navigationSort = 20;
 
     public static function getPluralLabel(): string
     {

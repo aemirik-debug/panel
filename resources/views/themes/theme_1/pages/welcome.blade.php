@@ -162,6 +162,48 @@
     opacity: 1;
   }
 
+  .home-gallery-swiper {
+    padding: 6px 0 12px;
+  }
+
+  .home-gallery-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f3f4f6;
+    aspect-ratio: 1 / 1;
+  }
+
+  .home-gallery-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .25s ease;
+  }
+
+  .home-gallery-card:hover img {
+    transform: scale(1.03);
+  }
+
+  .home-gallery-zoom {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: rgba(17, 24, 39, 0.75);
+  }
+
+  .home-gallery-action .btn {
+    border-radius: 999px;
+    padding: 10px 20px;
+  }
+
   /* Responsive Adjustments */
   @media (max-width: 768px) {
     .swiper-button-next,
@@ -247,6 +289,44 @@
         if (nextBtn) nextBtn.style.display = 'none';
         if (prevBtn) prevBtn.style.display = 'none';
         if (pagination) pagination.style.display = 'none';
+      }
+    }
+
+    const homeGallerySwiperContainer = document.querySelector('.home-gallery-swiper');
+    if (homeGallerySwiperContainer) {
+      const homeGallerySlideCount = homeGallerySwiperContainer.querySelectorAll('.swiper-slide').length;
+
+      const homeGallerySwiper = new Swiper('.home-gallery-swiper', {
+        slidesPerView: 2,
+        spaceBetween: 12,
+        loop: homeGallerySlideCount > 3,
+        speed: 650,
+        autoplay: {
+          delay: 2800,
+          disableOnInteraction: false,
+        },
+        breakpoints: {
+          576: {
+            slidesPerView: 3,
+            spaceBetween: 12,
+          },
+          768: {
+            slidesPerView: 4,
+            spaceBetween: 14,
+          },
+          1024: {
+            slidesPerView: 6,
+            spaceBetween: 14,
+          },
+          1280: {
+            slidesPerView: 8,
+            spaceBetween: 14,
+          },
+        },
+      });
+
+      if (homeGallerySlideCount <= 3) {
+        homeGallerySwiper.autoplay.stop();
       }
     }
   });
@@ -360,269 +440,45 @@
   }
 @endphp
 
-@if($allSplitSlides->count() > 0)
-<section id="split-slider" class="split-slider section">
-  <div class="container" data-aos="fade-up">
-    <div class="row g-3 align-items-stretch">
-      <div class="col-lg-8">
-        <div id="split-left-carousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4500">
-          <div class="carousel-inner">
-            @foreach($allSplitSlides as $index => $slide)
-              <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                <div class="split-left-slide">
-                  <img src="{{ asset('storage/' . $slide['image']) }}" alt="{{ $slide['title'] ?? 'Slider' }}">
-                  @if(!empty($slide['title']) || !empty($slide['subtitle']))
-                    <div class="split-caption">
-                      <div>{{ trim(($slide['title'] ?? '') . ' ' . ($slide['subtitle'] ?? '')) }}</div>
-                    </div>
-                  @endif
-                </div>
-              </div>
-            @endforeach
-          </div>
-          @if($allSplitSlides->count() > 1)
-            <button class="carousel-control-prev" type="button" data-bs-target="#split-left-carousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#split-left-carousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
-          @endif
-        </div>
-      </div>
+@php
+  $homeSectionDefaults = \App\Models\Setting::getDefaultHomeSections();
+  $homeSectionConfig = \App\Models\Setting::normalizeHomeSections($settings->home_sections ?? $homeSectionDefaults);
+  $homeSectionMap = collect($homeSectionConfig)->keyBy('key');
+@endphp
 
-      <div class="col-lg-4">
-        @if(!empty($splitStaticSource?->right_top_image))
-          <div class="split-right-card">
-            <img src="{{ asset('storage/' . $splitStaticSource->right_top_image) }}" alt="Sag Ust Gorsel">
-            @if(!empty($splitStaticSource->right_top_caption))
-              <div class="split-caption">{{ $splitStaticSource->right_top_caption }}</div>
-            @endif
-          </div>
-        @endif
+@foreach($homeSectionConfig as $sectionConfig)
+  @php
+    $sectionKey = $sectionConfig['key'] ?? null;
+    $sectionVisible = (bool) ($sectionConfig['is_visible'] ?? true);
+  @endphp
 
-        @if(!empty($splitStaticSource?->right_bottom_image))
-          <div class="split-right-card mb-0">
-            <img src="{{ asset('storage/' . $splitStaticSource->right_bottom_image) }}" alt="Sag Alt Gorsel">
-            @if(!empty($splitStaticSource->right_bottom_caption))
-              <div class="split-caption">{{ $splitStaticSource->right_bottom_caption }}</div>
-            @endif
-          </div>
-        @endif
-      </div>
-    </div>
-  </div>
-</section>
-@endif
+  @continue(! $sectionVisible || blank($sectionKey))
 
-<!-- Services Section -->
-<section id="services" class="services section">
+  @switch($sectionKey)
+    @case('split_slider')
+      @include('themes.theme_1.pages.partials.home.split-slider')
+      @break
 
-  <div class="container section-title" data-aos="fade-up">
-    <h2>{{ $settings->services_section_title ?? 'Hizmetlerimiz' }}</h2>
-    <p>{{ $settings->services_description ?? 'Sizin için en iyi hizmetleri sunuyoruz' }}</p>
-  </div>
+    @case('services')
+      @include('themes.theme_1.pages.partials.home.services')
+      @break
 
-  <div class="container">
+    @case('cta')
+      @include('themes.theme_1.pages.partials.home.cta')
+      @break
 
-    <div class="row gy-4">
+    @case('references')
+      @include('themes.theme_1.pages.partials.home.references')
+      @break
 
-      @if($services && $services->count() > 0)
-        @foreach($services as $index => $service)
-          @php
-            $iconClass = trim((string) ($service->icon ?? ''));
-            $iconClass = match ($iconClass) {
-              'fa-solid fa-code' => 'bi bi-code-slash',
-              'fa-solid fa-shirt' => 'bi bi-bag',
-              'fa-solid fa-building' => 'bi bi-building',
-              'fa-solid fa-stethoscope' => 'bi bi-heart-pulse',
-              'fa-solid fa-truck' => 'bi bi-truck',
-              'fa-solid fa-utensils' => 'bi bi-cup-hot',
-              'fa-solid fa-store' => 'bi bi-shop',
-              'fa-solid fa-chart-line' => 'bi bi-graph-up-arrow',
-              default => $iconClass,
-            };
-            if ($iconClass === '') {
-                $iconClass = 'bi bi-activity';
-            } elseif (!str_contains($iconClass, 'bi ') && !str_contains($iconClass, 'bi-')) {
-                $iconClass = 'bi bi-activity';
-            } elseif (str_starts_with($iconClass, 'bi-')) {
-                $iconClass = 'bi ' . $iconClass;
-            }
-          @endphp
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
-            <div class="service-item position-relative">
-              <div class="icon">
-                <i class="{{ $iconClass }}"></i>
-              </div>
-              <a href="{{ url('/servis/' . $service->slug) }}" class="stretched-link">
-                <h3>{{ $service->title }}</h3>
-              </a>
-              <p>{{ $service->short_description }}</p>
-            </div>
-          </div>
-        @endforeach
-      @else
-        <div class="col-12 text-center">
-          <p>Henüz hizmet eklenmedi.</p>
-        </div>
-      @endif
+    @case('gallery')
+      @include('themes.theme_1.pages.partials.home.gallery')
+      @break
 
-    </div>
-
-  </div>
-
-</section><!-- /Services Section -->
-
-<!-- Call To Action Section -->
-<section id="call-to-action" class="call-to-action section light-background">
-
-  <div class="container">
-
-    <div class="row" data-aos="zoom-in" data-aos-delay="100">
-      <div class="col-xl-9 text-center text-xl-start">
-        <h3>{{ $settings->cta_title ?? 'Harekete Geç' }}</h3>
-        <p>{{ $settings->cta_description ?? 'Bizimle çalışmaya başlamak için hemen iletişime geçin' }}</p>
-      </div>
-      <div class="col-xl-3 cta-btn-container text-center">
-        <a class="cta-btn align-middle" href="{{ url('/iletisim') }}">İletişim</a>
-      </div>
-    </div>
-
-  </div>
-
-</section><!-- /Call To Action Section -->
-
-<!-- Referanslar (Testimonials) Carousel Section -->
-<section id="referanslar-carousel" class="referanslar-carousel section">
-
-  <div class="container section-title" data-aos="fade-up">
-    <h2>{{ $settings->references_section_title ?? 'Referanslar ve Musterilerimiz' }}</h2>
-    <p>{{ $settings->references_section_description ?? 'Calistigimiz basarili projelerimiz' }}</p>
-  </div>
-
-  <div class="container" data-aos="fade-up">
-    
-    @if(isset($references) && $references->count() > 0)
-      <!-- Swiper Carousel -->
-      <div class="swiper referanslar-swiper">
-        <div class="swiper-wrapper">
-          @foreach($references as $reference)
-            <div class="swiper-slide">
-              <div class="reference-item">
-                <div class="reference-image">
-                  @php
-                    $referenceImage = $reference->image ?? $reference->featured_image;
-                  @endphp
-                  <img src="{{ asset('storage/' . $referenceImage) }}" alt="{{ $reference->title }}" class="img-fluid rounded">
-                </div>
-                <div class="reference-info text-center mt-3">
-                  <h4>{{ $reference->title }}</h4>
-                  <p class="text-muted">{{ Str::limit($reference->description, 80) }}</p>
-                </div>
-              </div>
-            </div>
-          @endforeach
-        </div>
-
-        <!-- Navigation Arrows -->
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-
-        <!-- Pagination -->
-        <div class="swiper-pagination"></div>
-      </div>
-    @else
-      <div class="text-center py-4">
-        <p class="text-muted mb-0">Henüz referans eklenmedi.</p>
-      </div>
-    @endif
-
-  </div>
-
-</section><!-- /Referanslar Carousel Section -->
-
-<!-- Portfolio Section -->
-@if(isset($galleries) && $galleries->count() > 0)
-<section id="portfolio" class="portfolio section">
-
-  <div class="container section-title" data-aos="fade-up">
-    <h2>Portfolyo</h2>
-    <p>Son çalışmalarımızı görün</p>
-  </div>
-
-  <div class="container">
-
-    <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
-
-      <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
-
-        @foreach($galleries->take(8) as $index => $gallery)
-          <div class="col-lg-4 col-md-6 portfolio-item isotope-item">
-            <img src="{{ asset('storage/' . $gallery->image) }}" class="img-fluid" alt="{{ $gallery->title }}">
-            <div class="portfolio-info">
-              <h4>{{ $gallery->title }}</h4>
-              <p>{{ $gallery->description }}</p>
-              <a href="{{ asset('storage/' . $gallery->image) }}" title="{{ $gallery->title }}" data-gallery="portfolio-gallery-app" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-            </div>
-          </div>
-        @endforeach
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section><!-- /Portfolio Section -->
-@endif
-
-<!-- Recent Posts Section -->
-@if(isset($posts) && $posts->count() > 0)
-<section id="recent-posts" class="recent-posts section">
-
-  <div class="container section-title" data-aos="fade-up">
-    <h2>Son Yazılar</h2>
-    <p>Blog'umuzdan son haberler</p>
-  </div>
-
-  <div class="container">
-
-    <div class="row gy-4">
-
-      @foreach($posts->take(3) as $index => $post)
-        <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
-          <article>
-
-            <div class="post-img">
-              <img src="{{ asset('storage/' . $post->image_path) }}" alt="{{ $post->title }}" class="img-fluid">
-            </div>
-
-            <p class="post-category">{{ $post->category->name ?? 'Genel' }}</p>
-
-            <h2 class="title">
-              <a href="{{ url('/blog/' . $post->slug) }}">{{ $post->title }}</a>
-            </h2>
-
-            <div class="d-flex align-items-center">
-              <div class="post-meta">
-                <p class="post-date">
-                  <time datetime="{{ $post->created_at->format('Y-m-d') }}">{{ $post->created_at->format('d M Y') }}</time>
-                </p>
-              </div>
-            </div>
-
-          </article>
-        </div>
-      @endforeach
-
-    </div>
-
-  </div>
-
-</section><!-- /Recent Posts Section -->
-@endif
+    @case('posts')
+      @include('themes.theme_1.pages.partials.home.posts')
+      @break
+  @endswitch
+@endforeach
 
 @endsection

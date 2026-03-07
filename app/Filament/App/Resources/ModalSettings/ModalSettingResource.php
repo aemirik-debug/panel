@@ -27,7 +27,7 @@ class ModalSettingResource extends Resource
     // BURASI ÇOK ÖNEMLİ: Resimdeki gibi grupluyoruz
     public static function getNavigationGroup(): ?string
     {
-        return 'Sistem & Ayarlar';
+        return 'Yapılandırma';
     }
 
     protected static ?int $navigationSort = 115;

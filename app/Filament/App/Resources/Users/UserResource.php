@@ -29,7 +29,7 @@ class UserResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Sistem & Ayarlar';
+        return 'Yapılandırma';
     }
 
     public static function getNavigationLabel(): string

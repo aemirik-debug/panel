@@ -30,19 +30,19 @@ class ContactResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return 'Formlardan Gelen Kayıtlar';
+        return 'Form Kayıtları';
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Diğer Özellikler';
+        return 'İletişim & Etkileşim';
     }
 
-    protected static ?int $navigationSort = 120;
+    protected static ?int $navigationSort = 10;
 
     public static function getPluralLabel(): string
     {
-        return 'Formlardan Gelen Kayıtlar';
+        return 'Form Kayıtları';
     }
 
     public static function form(Schema $schema): Schema

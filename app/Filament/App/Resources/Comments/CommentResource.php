@@ -39,10 +39,10 @@ class CommentResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Diğer Özellikler';
+        return 'Kurumsal İçerik';
     }
 
-    protected static ?int $navigationSort = 170;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
     {

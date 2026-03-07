@@ -1,5 +1,6 @@
 @php
-    $whatsappNumber = $settings->whatsapp_number ?? null;
+    $socialMedia = \App\Models\SocialMedia::query()->first();
+    $whatsappNumber = $socialMedia->whatsapp_number ?? null;
 @endphp
 
 @if($whatsappNumber)

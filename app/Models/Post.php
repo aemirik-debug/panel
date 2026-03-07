@@ -16,6 +16,7 @@ class Post extends Model
         'excerpt',
         'content',
         'featured_image',
+        'is_active',
         'is_published',
         'published_at',
         'meta_title',
@@ -23,6 +24,7 @@ class Post extends Model
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
     ];

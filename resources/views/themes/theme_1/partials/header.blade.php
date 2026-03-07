@@ -1,9 +1,11 @@
 <header id="header" class="header sticky-top">
   @php
-    $twitterUrl = $settings->twitter ?? $settings->twitter_url ?? null;
-    $facebookUrl = $settings->facebook ?? $settings->facebook_url ?? null;
-    $instagramUrl = $settings->instagram ?? $settings->instagram_url ?? null;
-    $linkedinUrl = $settings->linkedin ?? $settings->linkedin_url ?? null;
+    $socialMedia = \App\Models\SocialMedia::query()->first();
+
+    $twitterUrl = $socialMedia->twitter ?? null;
+    $facebookUrl = $socialMedia->facebook ?? null;
+    $instagramUrl = $socialMedia->instagram ?? null;
+    $linkedinUrl = $socialMedia->linkedin ?? null;
   @endphp
 
   <div class="topbar d-flex align-items-center light-background">

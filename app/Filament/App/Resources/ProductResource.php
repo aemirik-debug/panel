@@ -41,10 +41,10 @@ class ProductResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'İçerik Yönetimi';
+        return 'Ürün Yönetimi';
     }
 
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

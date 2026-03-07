@@ -40,7 +40,7 @@ class EventResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Diğer Özellikler';
+        return 'İletişim & Etkileşim';
     }
 
     protected static ?int $navigationSort = 130;

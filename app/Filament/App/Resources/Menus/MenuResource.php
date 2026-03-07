@@ -23,16 +23,16 @@ class MenuResource extends Resource
     protected static ?string $model = Menu::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
 
-    protected static ?int $navigationSort = 80;
+    protected static ?int $navigationSort = 10;
 
     public static function getNavigationLabel(): string
     {
-        return 'Menüler';
+        return 'Menü Ayarları';
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Medya & Tasarım';
+        return 'Kurumsal İçerik';
     }
 
     public static function getModelLabel(): string

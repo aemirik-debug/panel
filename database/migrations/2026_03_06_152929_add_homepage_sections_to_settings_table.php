@@ -16,10 +16,18 @@ return new class extends Migration
         }
 
         Schema::table('settings', function (Blueprint $table) {
-            $table->string('services_section_title')->nullable()->after('hero_background');
-            $table->text('services_description')->nullable()->after('services_section_title');
-            $table->string('cta_title')->nullable()->after('services_description');
-            $table->text('cta_description')->nullable()->after('cta_title');
+            if (!Schema::hasColumn('settings', 'services_section_title')) {
+                $table->string('services_section_title')->nullable()->after('hero_background');
+            }
+            if (!Schema::hasColumn('settings', 'services_description')) {
+                $table->text('services_description')->nullable()->after('services_section_title');
+            }
+            if (!Schema::hasColumn('settings', 'cta_title')) {
+                $table->string('cta_title')->nullable()->after('services_description');
+            }
+            if (!Schema::hasColumn('settings', 'cta_description')) {
+                $table->text('cta_description')->nullable()->after('cta_title');
+            }
         });
     }
 
