@@ -21,6 +21,8 @@ return new class extends Migration
         $table->string('image')->nullable();
         $table->boolean('is_active')->default(true);
         $table->integer('order')->default(0);
+        $table->string('meta_title')->nullable();
+        $table->text('meta_description')->nullable();
         $table->timestamps();
     });
 }

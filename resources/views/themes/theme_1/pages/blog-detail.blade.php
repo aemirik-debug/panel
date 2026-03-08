@@ -31,23 +31,26 @@
 
           <article class="article">
 
-            @if($post->image_path)
-              <div class="post-img">
-                <img src="{{ asset('storage/' . $post->image_path) }}" alt="{{ $post->title }}" class="img-fluid">
-              </div>
-            @endif
-
             <h2 class="title">{{ $post->title }}</h2>
 
             <div class="meta-top">
               <ul>
-                <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a href="#">{{ $post->author ?? 'Admin' }}</a></li>
                 <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a href="#"><time datetime="{{ $post->created_at->format('Y-m-d') }}">{{ $post->created_at->format('d M Y') }}</time></a></li>
-                @if($post->category)
-                  <li class="d-flex align-items-center"><i class="bi bi-folder2"></i> <a href="{{ url('/blog?category=' . $post->category->slug) }}">{{ $post->category->name }}</a></li>
-                @endif
               </ul>
             </div><!-- End meta top -->
+
+            <div class="row g-4 align-items-start mb-4">
+              @if($post->featured_image)
+                <div class="col-md-5">
+                  <img src="{{ asset('storage/' . $post->featured_image) }}" alt="{{ $post->title }}" class="img-fluid rounded">
+                </div>
+              @endif
+              <div class="{{ $post->featured_image ? 'col-md-7' : 'col-12' }}">
+                <p class="mb-0">
+                  {{ $post->excerpt ?: Str::limit(strip_tags($post->content), 280) }}
+                </p>
+              </div>
+            </div>
 
             <div class="content">
               {!! $post->content !!}
@@ -87,33 +90,17 @@
 
       <div class="widgets-container">
 
-        <!-- Categories Widget -->
-        @if(isset($categories) && $categories->count() > 0)
-        <div class="categories-widget widget-item">
-          <h3 class="widget-title">Kategoriler</h3>
-          <ul class="mt-3">
-            @foreach($categories as $category)
-              <li><a href="{{ url('/blog?category=' . $category->slug) }}">{{ $category->name }}</a></li>
-            @endforeach
-          </ul>
-        </div>
-        @endif
-
         <!-- Recent Posts Widget -->
         @if(isset($recentPosts) && $recentPosts->count() > 0)
         <div class="recent-posts-widget widget-item">
-          <h3 class="widget-title">Son Yazılar</h3>
+          <h3 class="widget-title">Diğer Blog Yazıları</h3>
+          <ul class="list-unstyled mt-3 mb-0">
           @foreach($recentPosts as $recent)
-            <div class="post-item">
-              @if($recent->image_path)
-                <img src="{{ asset('storage/' . $recent->image_path) }}" alt="{{ $recent->title }}" class="flex-shrink-0">
-              @endif
-              <div>
-                <h4><a href="{{ url('/blog/' . $recent->slug) }}">{{ $recent->title }}</a></h4>
-                <time datetime="{{ $recent->created_at->format('Y-m-d') }}">{{ $recent->created_at->format('d M Y') }}</time>
-              </div>
-            </div>
+            <li class="mb-2">
+              <a href="{{ url('/blog/' . $recent->slug) }}">{{ $recent->title }}</a>
+            </li>
           @endforeach
+          </ul>
         </div>
         @endif
 

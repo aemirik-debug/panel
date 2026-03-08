@@ -20,6 +20,7 @@ use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use BackedEnum;
@@ -63,7 +64,7 @@ class TenantResource extends Resource
                                 'kurumsal' => '🔴 KURUMSAL PAKETİ - Tüm modüller (17 modül aktif)',
                             ])
                             ->descriptions([
-                                'baslangic' => '✓ Hizmetler ✓ İletişim ✓ Galeri ✓ Slider ✓ Ayarlar ✓ Menü',
+                                'baslangic' => '✓ Hizmetler ✓ İletişim ✓ Harita ✓ Galeri ✓ Slider ✓ Ayarlar ✓ Menü',
                                 'profesyonel' => '✓ Başlangıç özellikleri + ✓ Blog ✓ Kategoriler ✓ Yorumlar ✓ Sidebar',
                                 'kurumsal' => '✓ Tüm modüller: Blog, Etkinlik, Anket, Müzik, Harita, Modal, vb.',
                             ])
@@ -126,6 +127,12 @@ class TenantResource extends Resource
                             ])
                             ->default('theme_1')
                             ->required(),
+
+                        Textarea::make('footer_credit_text')
+                            ->label('Footer Kredi Metni (Sadece Super Admin)')
+                            ->placeholder('Ornek: Designed by BootstrapMade')
+                            ->helperText('Bu alan tenant admin panelinde degistirilemez, sadece super admin buradan gunceller.')
+                            ->rows(2),
                     ])
                     ->columns(1)
                     ->collapsed(),

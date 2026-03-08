@@ -38,15 +38,21 @@ Route::middleware([
         
         $settings = \App\Models\Setting::first();
         
-        // Galleries (opsiyonel)
-        $galleries = \App\Models\Gallery::where('is_active', true)->get();
+        $homeAlbums = \App\Models\Album::where('is_active', true)
+            ->whereJsonContains('show_on', 'home')
+            ->orderBy('order', 'asc')
+            ->get();
+
+        $references = \App\Models\Portfolio::where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->get();
         
         // Posts (opsiyonel)
         $posts = \App\Models\Post::where('is_active', true)
             ->orderBy('created_at', 'desc')
             ->get();
         
-        return view("themes.{$theme}.pages.welcome", compact('services', 'sliders', 'settings', 'galleries', 'posts'));
+        return view("themes.{$theme}.pages.welcome", compact('services', 'sliders', 'settings', 'homeAlbums', 'references', 'posts'));
     });
     
     // SERVİS DETAY
@@ -74,16 +80,128 @@ Route::middleware([
             ->get();
         
         $settings = \App\Models\Setting::first();
-        
-        return view("themes.{$theme}.pages.services", compact('services', 'settings'));
+
+        $serviceAlbums = \App\Models\Album::where('is_active', true)
+            ->whereJsonContains('show_on', 'services')
+            ->orderBy('order', 'asc')
+            ->get();
+
+        return view("themes.{$theme}.pages.services", compact('services', 'settings', 'serviceAlbums'));
     })->name('services.index');
+
+    Route::get('/foto-galeri', function () {
+        $tenant = tenant();
+        $theme = $tenant->theme ?? 'theme_1';
+
+        $albums = \App\Models\Album::where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->get();
+
+        $selectedAlbum = null;
+        $selectedSlug = request('album');
+
+        if ($selectedSlug) {
+            $selectedAlbum = $albums->firstWhere('slug', $selectedSlug);
+        }
+
+        if (! $selectedAlbum) {
+            $selectedAlbum = $albums->first();
+        }
+
+        $settings = \App\Models\Setting::first();
+
+        return view("themes.{$theme}.pages.photo-gallery", compact('albums', 'selectedAlbum', 'settings'));
+    })->name('photo-gallery.index');
+
+    // URUNLER LISTESI
+    Route::get('/urunler', function () {
+        $tenant = tenant();
+        $theme = $tenant->theme ?? 'theme_1';
+
+        $activeCategorySlug = request('category');
+
+        $categories = \App\Models\Category::query()
+            ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->with([
+                'children' => fn ($query) => $query->where('is_active', true)->orderBy('name'),
+            ])
+            ->orderBy('name')
+            ->get();
+
+        $filterCategoryIds = [];
+        if ($activeCategorySlug) {
+            $selectedCategory = \App\Models\Category::query()
+                ->where('slug', $activeCategorySlug)
+                ->where('is_active', true)
+                ->with('children:id,parent_id')
+                ->first();
+
+            if ($selectedCategory) {
+                $filterCategoryIds = array_merge(
+                    [$selectedCategory->id],
+                    $selectedCategory->children->pluck('id')->all(),
+                );
+            }
+        }
+
+        $products = \App\Models\Product::query()
+            ->where('is_active', true)
+            ->when(!empty($filterCategoryIds), function ($query) use ($filterCategoryIds) {
+                $query->whereHas('categories', function ($categoryQuery) use ($filterCategoryIds) {
+                    $categoryQuery->whereIn('categories.id', $filterCategoryIds);
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+
+        $settings = \App\Models\Setting::first();
+
+        return view("themes.{$theme}.pages.products", compact('products', 'categories', 'activeCategorySlug', 'settings'));
+    })->name('products.index');
+
+    // URUN DETAY
+    Route::get('/urunler/{slug}', function ($slug) {
+        $tenant = tenant();
+        $theme = $tenant->theme ?? 'theme_1';
+
+        $product = \App\Models\Product::query()
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->with(['categories', 'reviews' => fn ($query) => $query->where('is_active', true)])
+            ->firstOrFail();
+
+        $relatedProducts = \App\Models\Product::query()
+            ->where('is_active', true)
+            ->where('id', '!=', $product->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(4)
+            ->get();
+
+        $categories = \App\Models\Category::query()
+            ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->with([
+                'children' => fn ($query) => $query->where('is_active', true)->orderBy('name'),
+            ])
+            ->orderBy('name')
+            ->get();
+
+        $activeCategorySlug = optional($product->categories->first())->slug;
+        $reviews = $product->reviews;
+        $averageRating = $reviews->count() > 0 ? round($reviews->avg('rating'), 1) : 0;
+
+        $settings = \App\Models\Setting::first();
+
+        return view("themes.{$theme}.pages.product-detail", compact('product', 'relatedProducts', 'categories', 'activeCategorySlug', 'reviews', 'averageRating', 'settings'));
+    })->name('products.show');
     
     // BLOG LİSTESİ
     Route::get('/blog', function () {
         $tenant = tenant();
         $theme = $tenant->theme ?? 'theme_1';
         
-        $query = \App\Models\Post::where('is_active', true);
+        $query = \App\Models\Post::where('is_published', true);
         
         if (request('q')) {
             $query->where(function($q) {
@@ -92,15 +210,9 @@ Route::middleware([
             });
         }
         
-        if (request('category')) {
-            $query->whereHas('category', function($q) {
-                $q->where('slug', request('category'));
-            });
-        }
-        
-        $posts = $query->orderBy('created_at', 'desc')->paginate(9);
-        $recentPosts = \App\Models\Post::where('is_active', true)
-            ->orderBy('created_at', 'desc')
+        $posts = $query->orderBy('published_at', 'desc')->paginate(9);
+        $recentPosts = \App\Models\Post::where('is_published', true)
+            ->orderBy('published_at', 'desc')
             ->limit(5)
             ->get();
         
@@ -115,12 +227,12 @@ Route::middleware([
         $theme = $tenant->theme ?? 'theme_1';
         
         $post = \App\Models\Post::where('slug', $slug)
-            ->where('is_active', true)
+            ->where('is_published', true)
             ->firstOrFail();
         
-        $recentPosts = \App\Models\Post::where('is_active', true)
+        $recentPosts = \App\Models\Post::where('is_published', true)
             ->where('id', '!=', $post->id)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('published_at', 'desc')
             ->limit(5)
             ->get();
         
@@ -130,27 +242,25 @@ Route::middleware([
     })->name('blog.detail');
     
     // PORTFOLYO
-    Route::get('/portfolyo', function () {
-        $tenant = tenant();
-        $theme = $tenant->theme ?? 'theme_1';
-        
-        $galleries = \App\Models\Gallery::where('is_active', true)
-            ->orderBy('order', 'asc')
-            ->get();
-        
-        $settings = \App\Models\Setting::first();
-        
-        return view("themes.{$theme}.pages.portfolio", compact('galleries', 'settings'));
-    })->name('portfolio.index');
-    
+    // (Eski route - artık kullanılmıyor, projeler.php sayfasında /projeler route'u var)
+
     // İLETİŞİM
     Route::get('/iletisim', function () {
         $tenant = tenant();
         $theme = $tenant->theme ?? 'theme_1';
         
         $settings = \App\Models\Setting::first();
+        $maps = collect();
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('maps')) {
+            $maps = \App\Models\Map::query()
+                ->where('is_active', true)
+                ->where('page', 'iletisim')
+                ->orderBy('id', 'asc')
+                ->get();
+        }
         
-        return view("themes.{$theme}.pages.contact", compact('settings'));
+        return view("themes.{$theme}.pages.contact", compact('settings', 'maps'));
     })->name('contact.index');
     
     // İLETİŞİM FORM
@@ -158,40 +268,60 @@ Route::middleware([
         $validated = request()->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:50',
             'subject' => 'required|string|max:255',
             'message' => 'required|string',
         ]);
+
+        $validated['form_name'] = 'İletişim Formu';
         
-        \App\Models\Contact::create($validated);
+        $contact = \App\Models\Contact::create($validated);
+
+        $settings = \App\Models\Setting::first();
+
+        if (
+            $settings?->send_contact_notifications &&
+            filled($settings->contact_notification_email)
+        ) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($settings->contact_notification_email)
+                    ->send(new \App\Mail\ContactFormSubmittedMail($contact, tenant()?->id));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+        
+        // AJAX request'ler için "OK" cevabı, normal post'lar için redirect with session
+        if (request()->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response('OK');
+        }
         
         return back()->with('success', 'Mesajınız başarıyla gönderildi!');
     })->name('contact.store');
-    
-    // HAKKIMIZDA
-    Route::get('/hakkimizda', function () {
+
+    // ÖZEL SAYFALAR (Menüden bağlanan içerik sayfaları)
+    Route::get('/{slug}', function (string $slug) {
         $tenant = tenant();
         $theme = $tenant->theme ?? 'theme_1';
-        
+
+        if (!\Illuminate\Support\Facades\Schema::hasTable('pages')) {
+            abort(404);
+        }
+
+        $page = \App\Models\Page::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
         $settings = \App\Models\Setting::first();
-        
-        return view("themes.{$theme}.pages.about", compact('settings'));
-    })->name('about');
-    
-    // REFERANSLAR
-    Route::get('/referanslar', function () {
-        $tenant = tenant();
-        $theme = $tenant->theme ?? 'theme_1';
-        
-        $clients = \App\Models\Gallery::where('is_active', true)
-            ->orderBy('order', 'asc')
-            ->get();
-        
-        $testimonials = \App\Models\Comment::where('is_active', true)
-            ->orderBy('created_at', 'desc')
-            ->get();
-        
-        $settings = \App\Models\Setting::first();
-        
-        return view("themes.{$theme}.pages.references", compact('clients', 'testimonials', 'settings'));
-    })->name('references.index');
+
+        $aboutAlbums = collect();
+        if ($slug === 'hakkimizda') {
+            $aboutAlbums = \App\Models\Album::where('is_active', true)
+                ->whereJsonContains('show_on', 'about')
+                ->orderBy('order', 'asc')
+                ->get();
+        }
+
+        return view("themes.{$theme}.pages.custom-page", compact('page', 'settings', 'aboutAlbums'));
+    })->where('slug', '^(?!admin|panel|storage|projeler|referanslar|hizmetler|servis|blog|iletisim|urunler|foto-galeri).*$')->name('pages.show');
 });

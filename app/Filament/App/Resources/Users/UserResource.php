@@ -25,9 +25,11 @@ class UserResource extends Resource
     // HATAYI ÇÖZEN KISIM: Tip tanımını tam olarak Filament'in istediği formata getirdik
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
+    protected static ?int $navigationSort = 110;
+
     public static function getNavigationGroup(): ?string
     {
-        return 'SİTE YÖNETİMİ';
+        return 'Yapılandırma';
     }
 
     public static function getNavigationLabel(): string

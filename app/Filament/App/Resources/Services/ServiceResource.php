@@ -25,6 +25,8 @@ class ServiceResource extends Resource
     protected static ?string $recordTitleAttribute = 'title';
 
     // Bütün tip hatalarını önleyen garantili metodlar:
+    protected static ?int $navigationSort = 30;
+
     public static function getNavigationLabel(): string
     {
         return 'Hizmetler';
@@ -32,7 +34,7 @@ class ServiceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'Kurumsal İçerik';
     }
 
     public static function getPluralLabel(): string

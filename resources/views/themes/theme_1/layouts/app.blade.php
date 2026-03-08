@@ -54,6 +54,9 @@
 
   @include('themes.theme_1.partials.footer')
 
+  <!-- WhatsApp Floating Button -->
+  @include('themes.theme_1.partials.whatsapp')
+
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 

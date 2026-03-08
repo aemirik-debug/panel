@@ -43,19 +43,42 @@
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
   padding: 30px;
   position: relative;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonials .testimonial-item:hover {
+  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
 }
 
 .testimonials .testimonial-item .testimonial-img {
-  width: 90px;
-  border-radius: 50%;
-  margin: 0 auto 20px;
+  width: 250px;
+  height: 250px;
+  border-radius: 12px;
+  margin: 0 auto 15px;
   display: block;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.testimonials .testimonial-item .testimonial-img-placeholder {
+  width: 250px;
+  height: 250px;
+  border-radius: 12px;
+  margin: 0 auto 15px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .testimonials .testimonial-item h3 {
   font-size: 18px;
   font-weight: bold;
-  margin: 10px 0 5px 0;
+  margin: 0 0 5px 0;
   color: #111;
   text-align: center;
 }
@@ -67,39 +90,30 @@
   text-align: center;
 }
 
-.testimonials .testimonial-item .stars {
-  margin-bottom: 15px;
+.testimonials .testimonial-item .testimonial-text {
+  font-style: italic;
+  margin: 0;
   text-align: center;
-}
-
-.testimonials .testimonial-item .stars i {
-  color: #ffc107;
-  margin: 0 1px;
+  flex-grow: 1;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
 }
 
 .testimonials .testimonial-item .quote-icon-left,
 .testimonials .testimonial-item .quote-icon-right {
   color: #e1e1e1;
-  font-size: 26px;
+  font-size: 20px;
 }
 
 .testimonials .testimonial-item .quote-icon-left {
   display: inline-block;
-  left: -5px;
-  position: relative;
+  margin-right: 5px;
 }
 
 .testimonials .testimonial-item .quote-icon-right {
   display: inline-block;
-  right: -5px;
-  position: relative;
-  top: 10px;
-}
-
-.testimonials .testimonial-item p {
-  font-style: italic;
-  margin: 0;
-  text-align: center;
+  margin-left: 5px;
 }
 </style>
 @endpush
@@ -154,34 +168,44 @@
 
   <!-- Section Title -->
   <div class="container section-title" data-aos="fade-up">
-    <h2>Müşteri Yorumları</h2>
-    <p>Müşterilerimizin bizim hakkımızda söyledikleri</p>
+    <h2>{{ $settings->references_section_title ?? 'Müşteri Referansları' }}</h2>
+    <p>{{ $settings->references_section_description ?? 'Bizimle çalışan müşterilerimizin değerlendirmeleri' }}</p>
   </div><!-- End Section Title -->
 
   <div class="container">
 
-    <div class="row gy-4">
+    <div class="row gy-4 g-lg-4">
 
       @foreach($testimonials as $index => $testimonial)
-        <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
-          <div class="testimonial-item">
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ ($index % 3) * 100 }}">
+          <div class="testimonial-item h-100">
             @if($testimonial->image)
-              <img src="{{ asset('storage/' . $testimonial->image) }}" class="testimonial-img" alt="{{ $testimonial->name }}">
-            @endif
-            <h3>{{ $testimonial->name }}</h3>
-            <h4>{{ $testimonial->position }}</h4>
-            @if($testimonial->rating)
-              <div class="stars">
-                @for($i = 0; $i < $testimonial->rating; $i++)
-                  <i class="bi bi-star-fill"></i>
-                @endfor
+              <img src="{{ asset('storage/' . $testimonial->image) }}" class="testimonial-img" alt="{{ $testimonial->name_surname }}">
+            @else
+              <div class="testimonial-img-placeholder bg-secondary d-flex align-items-center justify-content-center">
+                <i class="bi bi-person-circle" style="font-size: 3rem; color: #fff;"></i>
               </div>
             @endif
-            <p>
+            
+            <h3 class="mt-3">{{ $testimonial->name_surname }}</h3>
+            
+            @if($testimonial->position)
+              <h4 class="text-muted">{{ $testimonial->position }}</h4>
+            @endif
+            
+            <p class="testimonial-text mt-3">
               <i class="bi bi-quote quote-icon-left"></i>
-              <span>{{ $testimonial->content }}</span>
+              <span>{{ Str::limit($testimonial->comment, 120) }}</span>
               <i class="bi bi-quote quote-icon-right"></i>
             </p>
+
+            <div class="mt-3">
+              @if(strlen($testimonial->comment) > 120)
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#referenceModal{{ $testimonial->id }}">
+                  <i class="bi bi-arrow-right"></i> Devamını Oku
+                </button>
+              @endif
+            </div>
           </div>
         </div><!-- End testimonial item -->
       @endforeach
@@ -191,6 +215,42 @@
   </div>
 
 </section><!-- /Testimonials Section -->
+
+<!-- Reference Detail Modals -->
+@foreach($testimonials as $testimonial)
+  <div class="modal fade" id="referenceModal{{ $testimonial->id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ $testimonial->name_surname }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-3 text-center mb-3">
+              @if($testimonial->image)
+                <img src="{{ asset('storage/' . $testimonial->image) }}" class="img-fluid rounded" style="width: 250px; height: 250px; object-fit: cover;" alt="{{ $testimonial->name_surname }}">
+              @else
+                <div class="d-flex align-items-center justify-content-center" style="width: 250px; height: 250px; background: #e9ecef; border-radius: 12px; margin: 0 auto;">
+                  <i class="bi bi-person-circle" style="font-size: 4rem; color: #999;"></i>
+                </div>
+              @endif
+              @if($testimonial->position)
+                <p class="text-muted mt-2 small">{{ $testimonial->position }}</p>
+              @endif
+            </div>
+            <div class="col-md-9">
+              <p class="lead">{{ $testimonial->comment }}</p>
+              <small class="text-muted d-block mt-3">
+                <i class="bi bi-calendar"></i> {{ $testimonial->created_at->format('d.m.Y') }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+@endforeach
 @endif
 
 @if((!isset($clients) || $clients->count() == 0) && (!isset($testimonials) || $testimonials->count() == 0))

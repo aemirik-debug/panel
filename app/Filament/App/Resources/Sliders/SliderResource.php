@@ -27,19 +27,21 @@ class SliderResource extends Resource
     protected static ?string $recordTitleAttribute = 'title';
 
     // Bütün tip (Type) hatalarını önleyen garantili metodlar:
+    protected static ?int $navigationSort = 10;
+
     public static function getNavigationLabel(): string
     {
-        return 'Slider (Tam Ekran)';
+        return 'Slider';
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'Görsel & Medya';
     }
 
     public static function getPluralLabel(): string
     {
-        return 'Slider (Tam Ekran)';
+        return 'Slider';
     }
 
     public static function form(Schema $schema): Schema

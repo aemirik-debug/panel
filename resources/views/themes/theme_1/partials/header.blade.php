@@ -1,4 +1,12 @@
 <header id="header" class="header sticky-top">
+  @php
+    $socialMedia = \App\Models\SocialMedia::query()->first();
+
+    $twitterUrl = $socialMedia->twitter ?? null;
+    $facebookUrl = $socialMedia->facebook ?? null;
+    $instagramUrl = $socialMedia->instagram ?? null;
+    $linkedinUrl = $socialMedia->linkedin ?? null;
+  @endphp
 
   <div class="topbar d-flex align-items-center light-background">
     <div class="container d-flex justify-content-center justify-content-md-between">
@@ -11,17 +19,17 @@
         @endif
       </div>
       <div class="social-links d-none d-md-flex align-items-center">
-        @if($settings && $settings->twitter_url)
-          <a href="{{ $settings->twitter_url }}" class="twitter"><i class="bi bi-twitter-x"></i></a>
+        @if($twitterUrl)
+          <a href="{{ $twitterUrl }}" class="twitter"><i class="bi bi-twitter-x"></i></a>
         @endif
-        @if($settings && $settings->facebook_url)
-          <a href="{{ $settings->facebook_url }}" class="facebook"><i class="bi bi-facebook"></i></a>
+        @if($facebookUrl)
+          <a href="{{ $facebookUrl }}" class="facebook"><i class="bi bi-facebook"></i></a>
         @endif
-        @if($settings && $settings->instagram_url)
-          <a href="{{ $settings->instagram_url }}" class="instagram"><i class="bi bi-instagram"></i></a>
+        @if($instagramUrl)
+          <a href="{{ $instagramUrl }}" class="instagram"><i class="bi bi-instagram"></i></a>
         @endif
-        @if($settings && $settings->linkedin_url)
-          <a href="{{ $settings->linkedin_url }}" class="linkedin"><i class="bi bi-linkedin"></i></a>
+        @if($linkedinUrl)
+          <a href="{{ $linkedinUrl }}" class="linkedin"><i class="bi bi-linkedin"></i></a>
         @endif
       </div>
     </div>
@@ -34,18 +42,129 @@
         @if($settings && $settings->logo)
           <img src="{{ asset('storage/' . $settings->logo) }}" alt="{{ $settings->site_name ?? 'Logo' }}">
         @endif
-        <h1 class="sitename">{{ $settings->site_name ?? 'Flattern' }}</h1>
       </a>
 
       <nav id="navmenu" class="navmenu">
+        @php
+          $resolveMenuUrl = function ($menu) {
+              // Eğer menüye bağlı bir sayfa varsa, sayfa slug'ını kullan
+              if ($menu->page && $menu->page->slug) {
+                  return route('pages.show', ['slug' => $menu->page->slug]);
+              }
+
+              if (filled($menu->menu_type) && ! in_array($menu->menu_type, ['custom_page', 'custom_url'], true)) {
+                // Named routes
+                $routeMap = [
+                  'home' => 'home',
+                  'about' => 'pages.show',
+                  'services' => 'services.index',
+                  'references' => 'references.index',
+                  'portfolio' => 'portfolio.index',
+                  'blog' => 'blog.index',
+                  'contact' => 'contact.index',
+                ];
+                
+                if (isset($routeMap[$menu->menu_type])) {
+                  try {
+                    if ($menu->menu_type === 'about') {
+                      return route($routeMap[$menu->menu_type], ['slug' => 'hakkimizda']);
+                    }
+                    return route($routeMap[$menu->menu_type]);
+                  } catch (\Exception $e) {
+                    // Route bulunamadı, fallback yap
+                  }
+                }
+              }
+
+            $normalizedSlug = \Illuminate\Support\Str::slug((string) ($menu->slug ?: $menu->title));
+            $moduleRouteMap = [
+              'referanslar' => '/referanslar',
+              'hizmetler' => '/hizmetler',
+              'iletisim' => '/iletisim',
+              'hakkimizda' => '/hakkimizda',
+              'blog' => '/blog',
+              'projeler' => '/projeler',
+              'portfolyo' => '/projeler',
+            ];
+
+            if (blank($menu->url) && isset($moduleRouteMap[$normalizedSlug])) {
+              return $moduleRouteMap[$normalizedSlug];
+            }
+
+              $rawUrl = $menu->url;
+              if (blank($rawUrl)) {
+                  return '#';
+              }
+
+              if (str_starts_with($rawUrl, 'http://') || str_starts_with($rawUrl, 'https://')) {
+                  return $rawUrl;
+              }
+
+              return $rawUrl;
+          };
+        @endphp
+
         <ul>
-          <li><a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Ana Sayfa</a></li>
-          <li><a href="{{ url('/hakkimizda') }}" class="{{ Request::is('hakkimizda') ? 'active' : '' }}">Hakkımızda</a></li>
-          <li><a href="{{ url('/hizmetler') }}" class="{{ Request::is('hizmetler*') ? 'active' : '' }}">Hizmetler</a></li>
-          <li><a href="{{ url('/referanslar') }}" class="{{ Request::is('referanslar') ? 'active' : '' }}">Referanslar</a></li>
-          <li><a href="{{ url('/portfolyo') }}" class="{{ Request::is('portfolyo*') ? 'active' : '' }}">Portfolyo</a></li>
-          <li><a href="{{ url('/blog') }}" class="{{ Request::is('blog*') ? 'active' : '' }}">Blog</a></li>
-          <li><a href="{{ url('/iletisim') }}" class="{{ Request::is('iletisim') ? 'active' : '' }}">İletişim</a></li>
+          @if(isset($menus) && $menus->count())
+            @foreach($menus as $menu)
+              @php
+                $menuUrl = $resolveMenuUrl($menu);
+                // URL'den path'i al (slug varsa slugu kullan, yoksa URL'den)
+                $menuPath = $menu->page && $menu->page->slug ? ltrim($menu->page->slug, '/') : ltrim((string) ($menu->url ?: ($menu->slug ?? '')), '/');
+                $isExternal = str_starts_with((string) $menu->url, 'http://') || str_starts_with((string) $menu->url, 'https://');
+                $isActive = !$isExternal && (($menuPath === '' && request()->is('/')) || ($menuPath !== '' && request()->is($menuPath . '*')));
+              @endphp
+
+              @if($menu->children->count())
+                <li class="dropdown">
+                  <a href="{{ $menuUrl }}" class="{{ $isActive ? 'active' : '' }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif>
+                    <span>
+                      @if(!empty($menu->icon))
+                        <i class="bi bi-{{ $menu->icon }} me-1"></i>
+                      @endif
+                      {{ $menu->title }}
+                    </span>
+                    <i class="bi bi-chevron-down toggle-dropdown"></i>
+                  </a>
+                  <ul>
+                    @foreach($menu->children as $child)
+                      @php
+                        $childUrl = $resolveMenuUrl($child);
+                        $childPath = $child->page && $child->page->slug ? ltrim($child->page->slug, '/') : ltrim((string) ($child->url ?: ($child->slug ?? '')), '/');
+                        $childExternal = str_starts_with((string) $child->url, 'http://') || str_starts_with((string) $child->url, 'https://');
+                        $childActive = !$childExternal && (($childPath === '' && request()->is('/')) || ($childPath !== '' && request()->is($childPath . '*')));
+                      @endphp
+                      <li>
+                        <a href="{{ $childUrl }}" class="{{ $childActive ? 'active' : '' }}" @if($childExternal) target="_blank" rel="noopener noreferrer" @endif>
+                          @if(!empty($child->icon))
+                            <i class="bi bi-{{ $child->icon }} me-1"></i>
+                          @endif
+                          {{ $child->title }}
+                        </a>
+                      </li>
+                    @endforeach
+                  </ul>
+                </li>
+              @else
+                <li>
+                  <a href="{{ $menuUrl }}" class="{{ $isActive ? 'active' : '' }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif>
+                    @if(!empty($menu->icon))
+                      <i class="bi bi-{{ $menu->icon }} me-1"></i>
+                    @endif
+                    {{ $menu->title }}
+                  </a>
+                </li>
+              @endif
+            @endforeach
+          @else
+            <li><a href="{{ url('/') }}" class="{{ request()->is('/') ? 'active' : '' }}">Ana Sayfa</a></li>
+            <li><a href="{{ url('/hakkimizda') }}" class="{{ request()->is('hakkimizda') ? 'active' : '' }}">Hakkımızda</a></li>
+            <li><a href="{{ url('/hizmetler') }}" class="{{ request()->is('hizmetler*') ? 'active' : '' }}">Hizmetler</a></li>
+            <li><a href="{{ url('/projeler') }}" class="{{ request()->is('projeler*') ? 'active' : '' }}">Projeler</a></li>
+            <li><a href="{{ url('/referanslar') }}" class="{{ request()->is('referanslar') ? 'active' : '' }}">Referanslar</a></li>
+            <li><a href="{{ url('/blog') }}" class="{{ request()->is('blog*') ? 'active' : '' }}">Blog</a></li>
+            <li><a href="{{ url('/iletisim') }}" class="{{ request()->is('iletisim') ? 'active' : '' }}">İletişim</a></li>
+          @endif
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>

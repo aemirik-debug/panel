@@ -34,13 +34,15 @@ class PostResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return 'İçerik Yönetimi';
+        return 'Yazılar / Blog';
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'Kurumsal İçerik';
     }
+
+    protected static ?int $navigationSort = 60;
 
     public static function form(Schema $schema): Schema
     {

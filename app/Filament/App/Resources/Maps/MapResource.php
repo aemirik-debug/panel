@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -38,8 +39,10 @@ class MapResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Modüller';
+        return 'İletişim & Etkileşim';
     }
+
+    protected static ?int $navigationSort = 20;
 
     public static function getPluralLabel(): string
     {
@@ -53,10 +56,15 @@ class MapResource extends Resource
                 Section::make('Harita Detayları')
                     ->description('Google Maps üzerinden aldığınız iframe kodunu buraya yapıştırın.')
                     ->schema([
-                        TextInput::make('page')
+                        Select::make('page')
                             ->label('Bağlı Olduğu Sayfa')
-                            ->placeholder('Örn: İletişim, Şubelerimiz')
-                            ->maxLength(255),
+                            ->options([
+                                'iletisim' => 'İletişim Sayfası',
+                                'footer' => 'Footer (Alt Bilgi)',
+                            ])
+                            ->required()
+                            ->native(false)
+                            ->helperText('İletişim: Max 6 adet | Footer: Max 1 adet'),
 
                         TextInput::make('title')
                             ->label('Harita Başlığı / Ofis Adı')
@@ -67,13 +75,21 @@ class MapResource extends Resource
                             ->label('Google Maps Iframe Kodu')
                             ->required()
                             ->rows(5)
+                            ->rules([
+                                'regex:/^\s*<iframe\b[^>]*>.*<\/iframe>\s*$/is',
+                            ])
+                            ->validationMessages([
+                                'regex' => 'Lütfen yalnızca geçerli bir iframe kodu girin.',
+                            ])
                             ->placeholder('<iframe src="https://www.google.com/maps/embed?..." ...></iframe>')
+                            ->helperText('Sadece iframe kodu kabul edilir.')
                             ->columnSpanFull(),
 
                         Toggle::make('is_active')
                             ->label('Aktif')
                             ->default(true),
-                    ])->columns(2),
+                    ])
+                    ->columns(2),
             ]);
     }
 
