@@ -132,7 +132,11 @@ return [
         'disk' => env('LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK', 'public'), // Use a fixed local disk on Windows for stable temp uploads.
         'rules' => ['required', 'file'],                      // Avoid implicit size metadata reads from default max rule.
         'directory' => env('LIVEWIRE_TEMPORARY_FILE_UPLOAD_DIRECTORY', 'livewire-tmp'),
-        'middleware' => null,                                 // Example: 'throttle:5,1'            | Default: 'throttle:60,1'
+        'middleware' => [
+            'web',
+            \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+            \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+        ],
         'preview_mimes' => [                                  // Supported file types for temporary pre-signed file URLs...
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',

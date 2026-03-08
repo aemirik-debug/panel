@@ -5,9 +5,24 @@ namespace App\Providers;
 use App\Models\Menu;
 use App\Models\Setting;
 use App\Models\Domain;
+use App\Models\Post;
+use App\Models\Service;
+use App\Models\Page;
+use App\Models\Product;
+use App\Observers\PostObserver;
+use App\Observers\ServiceObserver;
+use App\Observers\PageObserver;
+use App\Observers\ProductObserver;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Route;
+use Livewire\Livewire;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,9 +39,52 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Livewire update endpoint'i tenant context içinde çalışmalı,
+        // aksi halde CSRF/session eşleşmez ve 419 hatası alınır.
+        Livewire::setUpdateRoute(function ($handle) {
+            return Route::post('/livewire/update', $handle)
+                ->middleware([
+                    'web',
+                    InitializeTenancyByDomain::class,
+                    PreventAccessFromCentralDomains::class,
+                ]);
+        });
+
+        // Model Observer'ları kaydet (RichEditor görsel optimizasyonu için)
+        Post::observe(PostObserver::class);
+        Service::observe(ServiceObserver::class);
+        Page::observe(PageObserver::class);
+        Product::observe(ProductObserver::class);
+
+        if (! app()->runningInConsole()) {
+            DB::whenQueryingForLongerThan((int) env('SLOW_DB_TOTAL_MS', 800), function (Connection $connection, QueryExecuted $event): void {
+                $request = request();
+
+                if (! $request->is('yonetim*') && ! $request->is('livewire/*')) {
+                    return;
+                }
+
+                \Log::warning('Slow DB activity detected on panel request', [
+                    'connection' => $connection->getName(),
+                    'path' => $request->path(),
+                    'route' => optional($request->route())->getName(),
+                    'last_query_ms' => $event->time,
+                    'last_query_sql' => substr($event->sql, 0, 500),
+                    'user_id' => optional($request->user())->id,
+                    'tenant_id' => function_exists('tenant') && tenant() ? tenant('id') : null,
+                ]);
+            });
+        }
+
         // Frontend görünümlerine ortak verileri tek noktadan enjekte et.
+        // NOT: Filament admin panelinde bu verileri kullanmıyoruz, sadece frontend'te lazım
         View::composer(['themes.*', 'layouts.*', 'partials.*'], function ($view) {
             try {
+                // Filament panelinde bu composer'ı çalıştırma
+                if (str_contains(request()->route()?->getPrefix() ?? '', 'yonetim')) {
+                    return;
+                }
+
                 $settings = null;
                 $menus = collect();
                 $footerMap = null;
@@ -58,13 +116,13 @@ class AppServiceProvider extends ServiceProvider
                 if (Schema::hasTable('menus')) {
                     $query = Menu::query()
                         ->where('is_active', true)
-                        ->orderBy('order');
+                        ->orderBy('order')
+                        ->with('page');
 
                     if (Schema::hasColumn('menus', 'parent_id')) {
                         $menus = $query
                             ->whereNull('parent_id')
                             ->with([
-                                'page',
                                 'children' => fn ($childQuery) => $childQuery
                                     ->where('is_active', true)
                                     ->orderBy('order')
@@ -73,11 +131,9 @@ class AppServiceProvider extends ServiceProvider
                             ->get();
                     } else {
                         $menus = $query
-                            ->with('page')
                             ->get()
                             ->map(function (Menu $menu) {
                                 $menu->setRelation('children', collect());
-
                                 return $menu;
                             });
                     }
@@ -89,6 +145,7 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('footerCreditText', $footerCreditText);
             } catch (\Throwable $e) {
                 // Tema render ederken migration öncesi hatalarda sayfayı kırma.
+                \Log::error('View Composer Error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
                 $view->with('settings', null);
                 $view->with('menus', collect());
                 $view->with('footerMap', null);
@@ -106,6 +163,10 @@ class AppServiceProvider extends ServiceProvider
     protected function configureMailFromSettings(): void
     {
         try {
+            if (! app()->runningInConsole() && request()->isMethod('GET') && request()->is('yonetim*')) {
+                return;
+            }
+
             // Veritabanı hazır değilse skip et
             if (! Schema::hasTable('settings')) {
                 return;
