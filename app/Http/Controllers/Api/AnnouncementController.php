@@ -15,8 +15,9 @@ class AnnouncementController
         $tenant = tenant();
         $limits = [
             'baslangic' => 1,
-            'profesyonel' => 5,
-            'kurumsal' => 999999, // Unlimited
+            'kurumsal' => 5,
+            'pro' => 999999, // Unlimited
+            'profesyonel' => 999999, // Backward compatibility
         ];
         return $limits[$tenant->package] ?? 1;
     }

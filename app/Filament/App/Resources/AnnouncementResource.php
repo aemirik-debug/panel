@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\AnnouncementResource\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Announcement;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
@@ -23,6 +24,10 @@ use Filament\Tables\Table;
 
 class AnnouncementResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'announcements';
+
     protected static ?string $model = Announcement::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-megaphone';
@@ -250,8 +255,9 @@ class AnnouncementResource extends Resource
     {
         return [
             'baslangic' => 1,
-            'profesyonel' => 5,
-            'kurumsal' => 999999, // Unlimited
+            'kurumsal' => 5,
+            'pro' => 999999, // Unlimited
+            'profesyonel' => 999999, // Backward compatibility
         ];
     }
 

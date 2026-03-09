@@ -34,8 +34,8 @@ class ListAnnouncements extends ListRecords
         $count = $this->getFilteredTableQuery()->count();
         $packageName = match(tenant()->package) {
             'baslangic' => 'Başlangıç',
-            'profesyonel' => 'Profesyonel',
             'kurumsal' => 'Kurumsal',
+            'pro', 'profesyonel' => 'Pro',
             default => 'Bilinmeyen'
         };
         

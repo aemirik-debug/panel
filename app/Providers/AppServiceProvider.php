@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\InitializeTenancyForLivewire;
 use App\Models\Menu;
 use App\Models\Setting;
 use App\Models\Domain;
@@ -21,8 +22,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,8 +44,7 @@ class AppServiceProvider extends ServiceProvider
             return Route::post('/livewire/update', $handle)
                 ->middleware([
                     'web',
-                    InitializeTenancyByDomain::class,
-                    PreventAccessFromCentralDomains::class,
+                    InitializeTenancyForLivewire::class,
                 ]);
         });
 

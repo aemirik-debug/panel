@@ -29,7 +29,6 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-			->domain('ajans-cms.test')
             ->colors([
                 'primary' => Color::Amber,
             ])

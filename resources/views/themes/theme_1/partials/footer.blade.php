@@ -6,6 +6,46 @@
     $facebookUrl = $socialMedia->facebook ?? null;
     $instagramUrl = $socialMedia->instagram ?? null;
     $linkedinUrl = $socialMedia->linkedin ?? null;
+
+    $resolveMenuUrl = function ($menu) {
+      if ($menu->page && $menu->page->slug) {
+        return route('pages.show', ['slug' => $menu->page->slug]);
+      }
+
+      if (filled($menu->menu_type) && ! in_array($menu->menu_type, ['custom_page', 'custom_url'], true)) {
+        $routeMap = [
+          'home' => 'home',
+          'about' => 'pages.show',
+          'services' => 'services.index',
+          'references' => 'references.index',
+          'portfolio' => 'portfolio.index',
+          'blog' => 'blog.index',
+          'contact' => 'contact.index',
+        ];
+
+        if (isset($routeMap[$menu->menu_type])) {
+          try {
+            if ($menu->menu_type === 'about') {
+              return route($routeMap[$menu->menu_type], ['slug' => 'hakkimizda']);
+            }
+
+            return route($routeMap[$menu->menu_type]);
+          } catch (\Throwable $e) {
+          }
+        }
+      }
+
+      if (blank($menu->url)) {
+        return '#';
+      }
+
+      return $menu->url;
+    };
+
+    $quickLinks = collect($menus ?? [])
+      ->where('is_active', true)
+      ->take(7)
+      ->values();
   @endphp
 
   <style>
@@ -56,13 +96,21 @@
         <div class="col-lg-2 col-md-3 footer-links">
           <h4>Hızlı Linkler</h4>
           <ul>
-            <li><a href="{{ url('/') }}">Ana Sayfa</a></li>
-            <li><a href="{{ url('/hakkimizda') }}">Hakkımızda</a></li>
-            <li><a href="{{ url('/hizmetler') }}">Hizmetler</a></li>
-            <li><a href="{{ url('/urunler') }}">Ürünler</a></li>
-            <li><a href="{{ route('photo-gallery.index') }}">Foto Galeri</a></li>
-            <li><a href="{{ url('/blog') }}">Blog</a></li>
-            <li><a href="{{ url('/iletisim') }}">İletişim</a></li>
+            @if($quickLinks->isNotEmpty())
+              @foreach($quickLinks as $menu)
+                @php
+                  $menuUrl = $resolveMenuUrl($menu);
+                  $isExternal = str_starts_with((string) ($menu->url ?? ''), 'http://') || str_starts_with((string) ($menu->url ?? ''), 'https://');
+                @endphp
+                <li>
+                  <a href="{{ $menuUrl }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif>
+                    {{ $menu->title }}
+                  </a>
+                </li>
+              @endforeach
+            @else
+              <li><a href="{{ url('/') }}">Ana Sayfa</a></li>
+            @endif
           </ul>
         </div>
 

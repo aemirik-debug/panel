@@ -59,14 +59,14 @@ class TenantResource extends Resource
                         Radio::make('package')
                             ->label('Paket Türü')
                             ->options([
-                                'baslangic' => '🟢 BAŞLANGIÇ PAKETİ - Temel özellikler (Hizmetler, İletişim, Galeri, Slider)',
-                                'profesyonel' => '🟡 PROFESYONEL PAKETİ - Başlangıç + Blog, Yorumlar, Kategoriler',
-                                'kurumsal' => '🔴 KURUMSAL PAKETİ - Tüm modüller (17 modül aktif)',
+                                'baslangic' => '🟢 BAŞLANGIÇ PAKETİ - Temel yönetim modülleri',
+                                'kurumsal' => '🟡 KURUMSAL PAKETİ - Başlangıç + Referans, Proje, Blog, Duyuru, Etkinlik',
+                                'pro' => '🔴 PRO PAKETİ - En üst paket (Kurumsal + Ürünler, Ürün Kategorileri)',
                             ])
                             ->descriptions([
-                                'baslangic' => '✓ Hizmetler ✓ İletişim ✓ Harita ✓ Galeri ✓ Slider ✓ Ayarlar ✓ Menü',
-                                'profesyonel' => '✓ Başlangıç özellikleri + ✓ Blog ✓ Kategoriler ✓ Yorumlar ✓ Sidebar',
-                                'kurumsal' => '✓ Tüm modüller: Blog, Etkinlik, Anket, Müzik, Harita, Modal, vb.',
+                                'baslangic' => '✓ Menü ✓ Sayfalar ✓ Hizmetler ✓ Slider ✓ Galeri ✓ Form Kayıtları ✓ Harita ✓ Sosyal Medya ✓ Site Ayarları ✓ Yöneticiler',
+                                'kurumsal' => '✓ Başlangıç + ✓ Referanslar ✓ Projeler ✓ Blog ✓ Duyuru ✓ Etkinlik Takvimi',
+                                'pro' => '✓ Kurumsal + ✓ Ürünler ✓ Ürün Kategorileri',
                             ])
                             ->default('baslangic')
                             ->required()
@@ -84,24 +84,23 @@ class TenantResource extends Resource
                                 $modules = Tenant::getPackageModules($package);
                                 
                                 $moduleLabels = [
+                                    'announcements' => '📣 Duyurular',
                                     'services' => '🛠️ Hizmetler',
                                     'contacts' => '📨 İletişim Formları',
                                     'galleries' => '🖼️ Galeriler',
                                     'sliders' => '🎬 Slider',
+                                    'social_media' => '🌐 Sosyal Medya',
                                     'settings' => '⚙️ Site Ayarları',
                                     'menus' => '🧭 Menü Yönetimi',
                                     'posts' => '📝 Blog/İçerik',
-                                    'categories' => '📂 Kategoriler',
-                                    'comments' => '💬 Yorumlar',
-                                    'sidebar_links' => '🔗 Sidebar Linkleri',
+                                    'categories' => '📂 Ürün Kategorileri',
+                                    'comments' => '💬 Referanslar',
                                     'events' => '📅 Etkinlikler',
-                                    'quizzes' => '📊 Anketler',
-                                    'quiz_results' => '📊 Anket Sonuçları',
-                                    'music' => '🎵 Müzik/Video',
                                     'maps' => '🗺️ Haritalar',
-                                    'text_sliders' => '🎬 Text Slider',
-                                    'modal_settings' => '🪟 Modal Ayarları',
+                                    'products' => '🛍️ Ürünler',
                                     'users' => '👥 Kullanıcı Yönetimi',
+                                    'pages' => '📄 Sayfalar',
+                                    'portfolios' => '🗂️ Projeler',
                                 ];
                                 
                                 $list = collect($modules)
@@ -171,14 +170,14 @@ class TenantResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'baslangic' => 'success',
-                        'profesyonel' => 'warning',
-                        'kurumsal' => 'danger',
+                        'kurumsal' => 'warning',
+                        'pro', 'profesyonel' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'baslangic' => 'BAŞLANGIÇ',
-                        'profesyonel' => 'PROFESYONEL',
                         'kurumsal' => 'KURUMSAL',
+                        'pro', 'profesyonel' => 'PRO',
                         default => strtoupper($state),
                     }),
                 

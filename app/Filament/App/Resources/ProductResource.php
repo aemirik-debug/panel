@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\ProductResource\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\Product;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
@@ -30,6 +31,10 @@ use Illuminate\Support\Str;
 
 class ProductResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'products';
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
@@ -86,6 +91,15 @@ class ProductResource extends Resource
                         RichEditor::make('description')
                             ->label('Detaylı Açıklama')
                             ->helperText('Ürünün detay sayfasında gösterilecek tam açıklama.')
+                            ->toolbarButtons([
+                                'bold','italic','link','bulletList',
+                                'orderedList','h2','h3',
+                                'attachFiles',
+                                'undo','redo'
+                            ])
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('rich-editor/products')
+                            ->fileAttachmentsVisibility('public')
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
@@ -95,25 +109,35 @@ class ProductResource extends Resource
                     ->schema([
                         FileUpload::make('main_image')
                             ->label('Ana Ürün Görseli')
-                            ->helperText('Önerilen ölçü: 1000x1000 px (1:1 oran). Liste ve detay sayfalarında kullanılır.')
+                            ->helperText('🖼️ Görsel otomatik olarak 1000x1000 boyutuna optimize edilecektir.')
                             ->image()
+                            ->imageResizeMode('cover')
+                            ->imageCropAspectRatio('1:1')
+                            ->imageResizeTargetWidth('1000')
+                            ->imageResizeTargetHeight('1000')
+                            ->maxSize(5120)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->directory('products')
                             ->disk('public')
                             ->visibility('public')
-                            ->maxSize(5120)
                             ->columnSpanFull(),
 
                         FileUpload::make('gallery_images')
                             ->label('Galeri Görselleri')
-                            ->helperText('Önerilen ölçü: 1000x1000 px (1:1 oran). Detay sayfasında ek görseller olarak gösterilir.')
+                            ->helperText('🖼️ Görseller otomatik olarak 1000x1000 boyutuna optimize edilecektir.')
                             ->image()
+                            ->imageResizeMode('cover')
+                            ->imageCropAspectRatio('1:1')
+                            ->imageResizeTargetWidth('1000')
+                            ->imageResizeTargetHeight('1000')
                             ->multiple()
                             ->reorderable()
+                            ->maxSize(5120)
+                            ->maxFiles(10)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->directory('products/gallery')
                             ->disk('public')
                             ->visibility('public')
-                            ->maxSize(5120)
-                            ->maxFiles(10)
                             ->columnSpanFull(),
                     ])
                     ->collapsible(),

@@ -33,53 +33,52 @@ protected $casts = [
     {
         return match($package) {
             'baslangic' => [
+                'menus',         // Menu Ayarlari
+                'pages',         // Sayfalar
                 'services',      // Hizmetler
-                'contacts',      // İletişim Formları
-                'maps',          // Haritalar
-                'galleries',     // Galeriler
                 'sliders',       // Slider
-                'settings',      // Site Ayarları
-                'menus',         // Menü Yönetimi
-                'pages',         // Özel Sayfalar
-                'comments',      // Referanslar
-                'portfolios',    // Projeler
-            ],
-            'profesyonel' => [
-                'services',
-                'contacts',
-                'maps',
-                'galleries',
-                'sliders',
-                'settings',
-                'menus',
-                'pages',
-                'posts',         // Blog/İçerik
-                'categories',    // Kategoriler
-                'comments',      // Yorumlar
-                'portfolios',    // Projeler
-                'sidebar_links', // Sidebar Linkleri
+                'galleries',     // Fotograf Galerisi
+                'contacts',      // Form Kayitlari
+                'maps',          // Harita
+                'social_media',  // Sosyal Medya
+                'settings',      // Site Ayarlari
+                'users',         // Yoneticiler
             ],
             'kurumsal' => [
-                'services',
-                'contacts',
-                'galleries',
-                'sliders',
-                'settings',
                 'menus',
                 'pages',
-                'posts',
-                'categories',
-                'comments',
+                'services',
+                'sliders',
+                'galleries',
+                'contacts',
+                'maps',
+                'social_media',
+                'settings',
+                'users',
+                'comments',      // Referanslar
                 'portfolios',    // Projeler
-                'sidebar_links',
-                'events',        // Etkinlikler
-                'quizzes',       // Anketler
-                'quiz_results',  // Anket Sonuçları
-                'music',         // Müzik/Video
-                'maps',          // Haritalar
-                'text_sliders',  // Text Sliderlar
-                'modal_settings',// Modal Ayarları
-                'users',         // Kullanıcı Yönetimi
+                'posts',         // Blog
+                'announcements', // Duyuru
+                'events',        // Etkinlik Takvimi
+            ],
+            'pro', 'profesyonel' => [
+                'menus',
+                'pages',
+                'services',
+                'sliders',
+                'galleries',
+                'contacts',
+                'maps',
+                'social_media',
+                'settings',
+                'users',
+                'comments',
+                'portfolios',
+                'posts',
+                'announcements',
+                'events',
+                'products',      // Urunler
+                'categories',    // Urun Kategorileri
             ],
             default => [],
         };
@@ -92,8 +91,8 @@ protected $casts = [
     {
         return match($package) {
             'baslangic' => '📦 BAŞLANGIÇ PAKETİ',
-            'profesyonel' => '📦 PROFESYONEL PAKETİ',
             'kurumsal' => '📦 KURUMSAL PAKETİ',
+            'pro', 'profesyonel' => '📦 PRO PAKETİ',
             default => 'Bilinmeyen Paket',
         };
     }

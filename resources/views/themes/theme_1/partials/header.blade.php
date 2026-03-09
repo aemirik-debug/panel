@@ -158,12 +158,6 @@
             @endforeach
           @else
             <li><a href="{{ url('/') }}" class="{{ request()->is('/') ? 'active' : '' }}">Ana Sayfa</a></li>
-            <li><a href="{{ url('/hakkimizda') }}" class="{{ request()->is('hakkimizda') ? 'active' : '' }}">Hakkımızda</a></li>
-            <li><a href="{{ url('/hizmetler') }}" class="{{ request()->is('hizmetler*') ? 'active' : '' }}">Hizmetler</a></li>
-            <li><a href="{{ url('/projeler') }}" class="{{ request()->is('projeler*') ? 'active' : '' }}">Projeler</a></li>
-            <li><a href="{{ url('/referanslar') }}" class="{{ request()->is('referanslar') ? 'active' : '' }}">Referanslar</a></li>
-            <li><a href="{{ url('/blog') }}" class="{{ request()->is('blog*') ? 'active' : '' }}">Blog</a></li>
-            <li><a href="{{ url('/iletisim') }}" class="{{ request()->is('iletisim') ? 'active' : '' }}">İletişim</a></li>
           @endif
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>

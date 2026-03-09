@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\SocialMedia;
 
 use App\Filament\App\Resources\SocialMedia\Pages;
+use App\Filament\Traits\HasPackageModule;
 use App\Models\SocialMedia;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,10 @@ use Filament\Actions\DeleteAction;
 
 class SocialMediaResource extends Resource
 {
+    use HasPackageModule;
+
+    protected static ?string $packageModule = 'social_media';
+
     protected static ?string $model = SocialMedia::class;
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedShare;
