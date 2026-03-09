@@ -63,13 +63,30 @@ class PostResource extends Resource
 
                         RichEditor::make('content')
                             ->label('İçerik Detayı')
+                            ->toolbarButtons([
+                                'bold','italic','link','bulletList',
+                                'orderedList','h2','h3',
+                                'attachFiles',
+                                'undo','redo'
+                            ])
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('rich-editor/posts')
+                            ->fileAttachmentsVisibility('public')
                             ->required()
                             ->columnSpanFull(),
 
                         FileUpload::make('image_path')
                             ->label('Kapak Görseli')
-                            ->directory('posts')
+                            ->helperText('🖼️ Görsel otomatik olarak 1200x675 boyutuna optimize edilecektir.')
                             ->image()
+                            ->imageResizeMode('cover')
+                            ->imageCropAspectRatio('16:9')
+                            ->imageResizeTargetWidth('1200')
+                            ->imageResizeTargetHeight('675')
+                            ->maxSize(5120)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->directory('posts')
+                            ->disk('public')
                             ->columnSpanFull(),
 
                         Toggle::make('is_active')

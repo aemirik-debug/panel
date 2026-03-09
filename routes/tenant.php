@@ -325,3 +325,14 @@ Route::middleware([
         return view("themes.{$theme}.pages.custom-page", compact('page', 'settings', 'aboutAlbums'));
     })->where('slug', '^(?!admin|panel|storage|projeler|referanslar|hizmetler|servis|blog|iletisim|urunler|foto-galeri).*$')->name('pages.show');
 });
+
+// API ROUTES (Duyurular, İçerik, vb.)
+Route::middleware([
+    'web',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+])->prefix('api')->group(function () {
+    Route::get('/announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
+    Route::get('/announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'show']);
+    Route::post('/announcements/{announcement}/view', [\App\Http\Controllers\Api\AnnouncementController::class, 'view']);
+});

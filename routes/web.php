@@ -299,6 +299,17 @@ Route::get('/referanslar', function () {
     return view("themes.{$theme}.pages.references", compact('clients', 'testimonials', 'settings'));
 })->name('references.index');
 
+// Tenant API fallback routes (announcement widget)
+Route::middleware([
+    'web',
+    \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+    \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+])->prefix('api')->group(function () {
+    Route::get('/announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
+    Route::get('/announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'show']);
+    Route::post('/announcements/{announcement}/view', [\App\Http\Controllers\Api\AnnouncementController::class, 'view']);
+});
+
 // 8. ÖZEL SAYFALAR (Menüden bağlanan içerik sayfaları)
 Route::get('/{slug}', function (string $slug) {
     $theme = 'theme_1';

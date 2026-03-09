@@ -12,9 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('services')) {
+            return;
+        }
+
         Schema::table('services', function (Blueprint $table) {
-        $table->string('meta_title')->nullable();
-		$table->text('meta_description')->nullable();
+            if (! Schema::hasColumn('services', 'meta_title')) {
+                $table->string('meta_title')->nullable();
+            }
+
+            if (! Schema::hasColumn('services', 'meta_description')) {
+                $table->text('meta_description')->nullable();
+            }
         });
     }
 
@@ -23,8 +32,18 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('services')) {
+            return;
+        }
+
         Schema::table('services', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('services', 'meta_title')) {
+                $table->dropColumn('meta_title');
+            }
+
+            if (Schema::hasColumn('services', 'meta_description')) {
+                $table->dropColumn('meta_description');
+            }
         });
     }
 

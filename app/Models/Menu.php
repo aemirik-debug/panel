@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 class Menu extends Model
 {
-    use HasFactory;
+    use HasFactory, TenantConnection;
 
     protected $fillable = [
         'title',

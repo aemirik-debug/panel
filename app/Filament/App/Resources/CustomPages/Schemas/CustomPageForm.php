@@ -50,13 +50,30 @@ class CustomPageForm
 
                         RichEditor::make('content')
                             ->label('Sayfa İçeriği')
+                            ->toolbarButtons([
+                                'bold','italic','link','bulletList',
+                                'orderedList','h2','h3',
+                                'attachFiles',
+                                'undo','redo'
+                            ])
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('rich-editor/pages')
+                            ->fileAttachmentsVisibility('public')
                             ->required()
                             ->columnSpanFull(),
 
                         FileUpload::make('featured_image')
                             ->label('Kapak Görseli')
-                            ->directory('pages')
+                            ->helperText('🖼️ Görsel otomatik olarak 1200x675 boyutuna optimize edilecektir.')
                             ->image()
+                            ->imageResizeMode('cover')
+                            ->imageCropAspectRatio('16:9')
+                            ->imageResizeTargetWidth('1200')
+                            ->imageResizeTargetHeight('675')
+                            ->maxSize(5120)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->directory('pages')
+                            ->disk('public')
                             ->columnSpanFull(),
 
                         Toggle::make('is_active')

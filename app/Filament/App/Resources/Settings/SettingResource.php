@@ -90,8 +90,12 @@ class SettingResource extends Resource
                                         Grid::make(2)->schema([
                                             FileUpload::make('logo')
                                                 ->label('Logo')
-                                                ->helperText('Onerilen olcu: 200x100 px.')
+                                                ->helperText('🖼️ Logo otomatik olarak 400x200 boyutuna optimize edilecektir.')
                                                 ->image()
+                                                ->imageResizeMode('contain')
+                                                ->imageResizeTargetWidth('400')
+                                                ->imageResizeTargetHeight('200')
+                                                ->maxSize(2048)
                                                 ->disk('public')
                                                 ->directory('settings')
                                                 ->visibility('public')
@@ -100,13 +104,17 @@ class SettingResource extends Resource
 
                                             FileUpload::make('favicon')
                                                 ->label('Favicon')
-                                                ->helperText('Onerilen olcu: 32x32 veya 64x64 px.')
+                                                ->helperText('🖼️ Favicon otomatik olarak 64x64 boyutuna optimize edilecektir.')
                                                 ->image()
+                                                ->imageResizeMode('contain')
+                                                ->imageResizeTargetWidth('64')
+                                                ->imageResizeTargetHeight('64')
+                                                ->maxSize(512)
                                                 ->disk('public')
                                                 ->directory('settings')
                                                 ->visibility('public')
                                                 ->fetchFileInformation(false)
-                                                ->acceptedFileTypes(['image/png', 'image/x-icon', 'image/vnd.microsoft.icon', 'image/svg+xml']),
+                                                ->acceptedFileTypes(['image/png', 'image/x-icon', 'image/vnd.microsoft.icon']),
                                         ]),
                                     ]),
 

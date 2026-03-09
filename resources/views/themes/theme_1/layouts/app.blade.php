@@ -46,6 +46,8 @@
 
 <body class="@yield('body-class', 'index-page')">
 
+  @include('themes.theme_1.components.announcements')
+
   @include('themes.theme_1.partials.header')
 
   <main class="main">

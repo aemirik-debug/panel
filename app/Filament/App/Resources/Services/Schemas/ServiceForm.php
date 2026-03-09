@@ -49,9 +49,16 @@ class ServiceForm
 
                                 FileUpload::make('image')
                                     ->label('Hizmet Görseli')
+                                    ->helperText('🖼️ Görsel otomatik olarak 800x600 boyutuna optimize edilecektir.')
                                     ->image()
-                                    ->imageEditor()
-                                    ->directory('services'),
+                                    ->imageResizeMode('cover')
+                                    ->imageCropAspectRatio('4:3')
+                                    ->imageResizeTargetWidth('800')
+                                    ->imageResizeTargetHeight('600')
+                                    ->maxSize(5120)
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->directory('services')
+                                    ->disk('public'),
                             ]),
                     ]),
 
@@ -68,8 +75,13 @@ class ServiceForm
                             ->label('Detaylı Açıklama')
                             ->toolbarButtons([
                                 'bold','italic','link','bulletList',
-                                'orderedList','h2','h3','undo','redo'
+                                'orderedList','h2','h3',
+                                'attachFiles',
+                                'undo','redo'
                             ])
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('rich-editor/services')
+                            ->fileAttachmentsVisibility('public')
                             ->columnSpanFull(),
                     ]),
 
