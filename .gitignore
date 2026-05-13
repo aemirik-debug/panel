@@ -25,7 +25,7 @@ Homestead.yaml
 Thumbs.db
 
 # Local tenant runtime artifacts
-/database/tenantmusteri*
+/database/tenant*
 /storage/tenant*/
 /tools/*.out
 /toArray())
