@@ -42,13 +42,24 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
         // Livewire update endpoint'i tenant context içinde çalışmalı,
-        // aksi halde CSRF/session eşleşmez ve 419 hatası alınır.
+        // ancak merkezi domainlerde (admin paneli gibi) tenancy başlatılmamalı.
         Livewire::setUpdateRoute(function ($handle) {
+            $middlewares = ['web'];
+            
+            // Eğer istek merkezi bir domainden gelmiyorsa tenancy middleware'ini ekle
+            $isCentral = false;
+            try {
+                $centralDomains = config('tenancy.central_domains', []);
+                $currentHost = request()->getHost();
+                $isCentral = in_array($currentHost, $centralDomains);
+            } catch (\Throwable $e) {}
+
+            if (!$isCentral) {
+                $middlewares[] = InitializeTenancyForLivewire::class;
+            }
+
             return Route::post('/livewire/update', $handle)
-                ->middleware([
-                    'web',
-                    InitializeTenancyForLivewire::class,
-                ]);
+                ->middleware($middlewares);
         });
 
         // Model Observer'ları kaydet (RichEditor görsel optimizasyonu için)
