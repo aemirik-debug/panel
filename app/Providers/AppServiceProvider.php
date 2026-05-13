@@ -55,16 +55,21 @@ class AppServiceProvider extends ServiceProvider
         Livewire::setUpdateRoute(function ($handle) {
             $middlewares = ['web'];
             
-            // Eğer istek merkezi bir domainden gelmiyorsa tenancy middleware'ini ekle
-            $isCentral = false;
-            try {
-                $centralDomains = config('tenancy.central_domains', []);
-                $currentHost = request()->getHost();
-                $isCentral = in_array($currentHost, $centralDomains);
-            } catch (\Throwable $e) {}
-
-            if (!$isCentral) {
+            // Eğer bir tenant (müşteri) context'i yoksa merkezi domaindeyizdir.
+            // Bu kontrolü isteğin çalışma anına (middleware pipeline) bırakmak en sağlıklısı.
+            if (function_exists('tenant') && tenant()) {
                 $middlewares[] = InitializeTenancyForLivewire::class;
+            } else {
+                // Eğer manuel kontrol başarısız olursa, her ihtimale karşı 
+                // InitializeTenancyForLivewire'ı sadece tenant_id varsa çalışacak şekilde 
+                // veya host'u tekrar kontrol ederek ekleyelim.
+                try {
+                    $centralDomains = config('tenancy.central_domains', []);
+                    $currentHost = request()->getHost();
+                    if (!in_array($currentHost, $centralDomains)) {
+                        $middlewares[] = InitializeTenancyForLivewire::class;
+                    }
+                } catch (\Throwable $e) {}
             }
 
             return Route::post('/livewire/update', $handle)
