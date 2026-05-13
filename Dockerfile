@@ -1,7 +1,7 @@
 FROM serversideup/php:8.4-fpm-nginx
 
-# Trafiğin bağlanacağı portu Railway arayüzünüzdeki 8000 olarak ayarlıyoruz
-EXPOSE 8000
+# Trafiğin bağlanacağı portu 8080 (ServerSideUp varsayılanı) olarak ayarlıyoruz
+EXPOSE 8080
 
 # Gerekli kurulumlar
 USER root
@@ -11,9 +11,6 @@ RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev \
 
 # Eksik PHP uzantılarını kur (intl = Filament, gd = Excel/Görsel)
 RUN install-php-extensions intl gd
-
-# ServerSideUp imajının Nginx ayarlarında gömülü olan 8080 portunu 8000 ile değiştiriyoruz.
-RUN find /etc/nginx -type f -exec sed -i 's/8080/8000/g' {} +
 
 # Dosyaları aktarıyoruz
 USER www-data
