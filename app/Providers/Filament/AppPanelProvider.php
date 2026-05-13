@@ -53,6 +53,8 @@ class AppPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
+                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
                 RedirectStaleFilamentEditRequests::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,

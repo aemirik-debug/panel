@@ -3,9 +3,9 @@ FROM serversideup/php:8.4-fpm-nginx
 # Trafiğin bağlanacağı portu 8080 (ServerSideUp varsayılanı) olarak ayarlıyoruz
 EXPOSE 8080
 
-# Gerekli kurulumlar
+# Gerekli kurulumlar (Node.js dahil)
 USER root
-RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev \
+RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev nodejs npm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -16,8 +16,9 @@ RUN install-php-extensions intl gd
 USER www-data
 COPY --chown=www-data:www-data . /var/www/html
 
-# Composer ile kurulum
+# Composer ve NPM (Vite) kurulumları
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+RUN npm install && npm run build
 
 # Klasör ve veritabanı ayarları
 RUN mkdir -p database storage/framework/sessions storage/framework/views storage/framework/cache/data bootstrap/cache

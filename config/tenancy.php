@@ -19,7 +19,8 @@ return [
     'central_domains' => [
         '127.0.0.1',
         'localhost',
-		'ajans-cms.test',
+		'kurumsal.moonpik.test',
+		'kurumsal.moonpik.com',
     ],	
 
     /**

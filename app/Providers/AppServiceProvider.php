@@ -38,6 +38,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (app()->environment('production')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
         // Livewire update endpoint'i tenant context içinde çalışmalı,
         // aksi halde CSRF/session eşleşmez ve 419 hatası alınır.
         Livewire::setUpdateRoute(function ($handle) {
