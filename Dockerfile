@@ -24,6 +24,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 
 # Klasör ve veritabanı ayarları
 RUN mkdir -p database storage/framework/sessions storage/framework/views storage/framework/cache/data bootstrap/cache
+RUN touch database/database.sqlite
 RUN chmod -R 777 storage database bootstrap/cache
 
 # Migration işlemi
