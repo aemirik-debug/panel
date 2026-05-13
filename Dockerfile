@@ -5,9 +5,12 @@ EXPOSE 8000
 
 # Gerekli kurulumlar
 USER root
-RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev php8.4-intl php8.4-gd \
+RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Eksik PHP uzantılarını kur (intl = Filament, gd = Excel/Görsel)
+RUN install-php-extensions intl gd
 
 # ServerSideUp imajının Nginx ayarlarında gömülü olan 8080 portunu 8000 ile değiştiriyoruz.
 RUN find /etc/nginx -type f -exec sed -i 's/8080/8000/g' {} +
