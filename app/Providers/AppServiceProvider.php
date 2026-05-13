@@ -50,30 +50,15 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
-        // Livewire update endpoint'i tenant context içinde çalışmalı,
-        // ancak merkezi domainlerde (admin paneli gibi) tenancy başlatılmamalı.
+        // Livewire update endpoint'i tenant context içinde çalışmalı.
+        // InitializeTenancyForLivewire kendi içinde merkezi domain kontrolü yaptığı için 
+        // burada ekstra karmaşık kontrole gerek yok.
         Livewire::setUpdateRoute(function ($handle) {
-            $middlewares = ['web'];
-            
-            // Eğer bir tenant (müşteri) context'i yoksa merkezi domaindeyizdir.
-            // Bu kontrolü isteğin çalışma anına (middleware pipeline) bırakmak en sağlıklısı.
-            if (function_exists('tenant') && tenant()) {
-                $middlewares[] = InitializeTenancyForLivewire::class;
-            } else {
-                // Eğer manuel kontrol başarısız olursa, her ihtimale karşı 
-                // InitializeTenancyForLivewire'ı sadece tenant_id varsa çalışacak şekilde 
-                // veya host'u tekrar kontrol ederek ekleyelim.
-                try {
-                    $centralDomains = config('tenancy.central_domains', []);
-                    $currentHost = request()->getHost();
-                    if (!in_array($currentHost, $centralDomains)) {
-                        $middlewares[] = InitializeTenancyForLivewire::class;
-                    }
-                } catch (\Throwable $e) {}
-            }
-
             return Route::post('/livewire/update', $handle)
-                ->middleware($middlewares);
+                ->middleware([
+                    'web',
+                    InitializeTenancyForLivewire::class,
+                ]);
         });
 
         // Model Observer'ları kaydet (RichEditor görsel optimizasyonu için)
