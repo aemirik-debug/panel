@@ -38,6 +38,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // SQLite veritabanı dosyası Volume içinde yoksa oluştur (500 hatasını önlemek için)
+        if (config('database.default') === 'sqlite') {
+            $dbPath = config('database.connections.sqlite.database');
+            if ($dbPath !== ':memory:' && !file_exists($dbPath)) {
+                @touch($dbPath);
+                @chmod($dbPath, 0777);
+            }
+        }
+
         if (app()->environment('production')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
