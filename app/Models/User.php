@@ -38,10 +38,13 @@ class User extends Authenticatable implements FilamentUser // Buraya 'implements
     // Filament'in panele giriş izni için bu fonksiyonu eklemelisin
     public function canAccessPanel(Panel $panel): bool
     {
-        return match ($panel->getId()) {
-            'admin' => $this->role === self::ROLE_SUPER_ADMIN,
-            'app' => in_array($this->role, [self::ROLE_SUPER_ADMIN, self::ROLE_SITE_MANAGER], true),
-            default => false,
-        };
+        // Merkezi admin paneline giriş izni
+        if ($panel->getId() === 'admin') {
+            // Eğer rolü super_admin ise veya henüz hiç rol atanmamışsa (ilk kurulum) girişe izin ver
+            return $this->role === 'super_admin' || is_null($this->role);
+        }
+
+        // Müşteri (yonetim) paneline herkes girebilir (kendi verisine ulaşır)
+        return true;
     }
 }
