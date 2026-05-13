@@ -5,7 +5,7 @@ EXPOSE 8000
 
 # Gerekli kurulumlar
 USER root
-RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev \
+RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev php8.4-intl php8.4-gd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
