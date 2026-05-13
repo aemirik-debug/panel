@@ -17,7 +17,7 @@ USER www-data
 COPY --chown=www-data:www-data . /var/www/html
 
 # Composer ile kurulum
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Klasör ve veritabanı ayarları
 RUN mkdir -p database storage/framework/sessions storage/framework/views storage/framework/cache/data bootstrap/cache
