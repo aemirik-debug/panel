@@ -12,9 +12,13 @@ class User extends Authenticatable implements FilamentUser // Buraya 'implements
 {
     use HasFactory, Notifiable;
 
+    public const ROLE_SUPER_ADMIN = 'super_admin';
+    public const ROLE_SITE_MANAGER = 'site_manager';
+
     protected $fillable = [
         'name',
         'email',
+        'role',
         'password',
     ];
 
@@ -34,8 +38,10 @@ class User extends Authenticatable implements FilamentUser // Buraya 'implements
     // Filament'in panele giriş izni için bu fonksiyonu eklemelisin
     public function canAccessPanel(Panel $panel): bool
     {
-        // Şimdilik herkese izin veriyoruz. 
-        // İleride 'Süper Admin sadece ana panele, müşteri sadece kendi paneline' kuralını buraya yazacağız.
-        return true;
+        return match ($panel->getId()) {
+            'admin' => $this->role === self::ROLE_SUPER_ADMIN,
+            'app' => in_array($this->role, [self::ROLE_SUPER_ADMIN, self::ROLE_SITE_MANAGER], true),
+            default => false,
+        };
     }
 }

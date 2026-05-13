@@ -12,6 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Posts table is only in tenant database, not central database
+        if (!Schema::hasTable('posts')) {
+            return;
+        }
+
         // Raw SQL ile direkt ekle (SQLite için)
         try {
             DB::statement('ALTER TABLE posts ADD COLUMN is_active INTEGER DEFAULT 1 NOT NULL');

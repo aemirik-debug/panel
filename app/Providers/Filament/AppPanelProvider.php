@@ -3,8 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\RedirectStaleFilamentEditRequests;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -30,6 +28,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('yonetim')
 			->login()
+            ->brandName('Yönetim')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -51,8 +50,6 @@ class AppPanelProvider extends PanelProvider
                 'Yapılandırma',
             ])
             ->middleware([
-                InitializeTenancyByDomain::class,
-                PreventAccessFromCentralDomains::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
